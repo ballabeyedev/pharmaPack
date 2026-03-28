@@ -1,4 +1,4 @@
-const { Utilisateur, Pharmacie } = require('../models');
+const { User, Pharmacie } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { jwtConfig, bcryptConfig } = require('../config/security');
@@ -25,7 +25,7 @@ class AuthService {
       const emailClean = email.trim().toLowerCase();
 
       // 🔍 Vérification email
-      const exist = await Utilisateur.findOne({
+      const exist = await User.findOne({
         where: { email: emailClean },
         transaction: t
       });
@@ -36,7 +36,7 @@ class AuthService {
 
       // 🔍 Vérification téléphone
       if (telephone) {
-        const telExist = await Utilisateur.findOne({
+        const telExist = await User.findOne({
           where: { telephone },
           transaction: t
         });
@@ -59,7 +59,7 @@ class AuthService {
       }
 
       // 👤 Création utilisateur
-      const utilisateur = await Utilisateur.create({
+      const utilisateur = await User.create({
         nom,
         prenom,
         email: emailClean,
@@ -109,7 +109,7 @@ class AuthService {
   // -------------------- CONNEXION --------------------
   static async login({ identifiant, mot_de_passe }) {
     const isEmail = /\S+@\S+\.\S+/.test(identifiant);
-    const utilisateur = await Utilisateur.findOne({
+    const utilisateur = await User.findOne({
       where: isEmail ? { email: identifiant } : { telephone: identifiant },
     });
 
