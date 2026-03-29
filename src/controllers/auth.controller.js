@@ -3,6 +3,15 @@ const formatUser = require('../utils/formatUser');
 
 exports.inscriptionUser = async (req, res) => {
   try {
+
+    console.log("========== DEBUG INSCRIPTION ==========");
+
+    // 🔹 Body reçu
+    console.log("BODY:", req.body);
+
+    // 🔹 Fichiers reçus
+    console.log("FILES:", req.files);
+
     const {
       nom,
       prenom,
@@ -21,6 +30,12 @@ exports.inscriptionUser = async (req, res) => {
 
     const photoProfil = req.files?.['photoProfil']?.[0] || null;
     const logo = req.files?.['logo']?.[0] || null;
+
+    // 🔹 Vérification photo
+    console.log("PHOTO PROFIL:", photoProfil);
+
+    // 🔹 Vérification logo
+    console.log("LOGO:", logo);
 
     let pharmacieData = null;
 
@@ -47,6 +62,8 @@ exports.inscriptionUser = async (req, res) => {
       pharmacie: pharmacieData
     });
 
+    console.log("RESULT REGISTER:", result);
+
     if (!result.success) {
       return res.status(400).json({ message: result.message });
     }
@@ -58,7 +75,7 @@ exports.inscriptionUser = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Erreur lors de l’inscription :', err);
+    console.error('❌ ERREUR INSCRIPTION :', err);
     return res.status(500).json({
       message: 'Erreur serveur lors de l’inscription',
       erreur: err.message
