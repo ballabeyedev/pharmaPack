@@ -6,7 +6,7 @@ const formatUser = (utilisateur) => {
     email: utilisateur.email,
     adresse: utilisateur.adresse,
     telephone: utilisateur.telephone,
-    photoProfil: utilisateur.photoProfil,
+    photoProfil: utilisateur.photo_profil,
     role: utilisateur.role,
   };
 
