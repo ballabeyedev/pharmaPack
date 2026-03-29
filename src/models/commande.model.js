@@ -28,7 +28,7 @@ const Commande = sequelize.define('Commande', {
   },
 
   statut: {
-    type: DataTypes.ENUM('en_attente', 'en_preparation', 'en_livraison', 'livree', 'annulee'),
+    type: DataTypes.ENUM('en_attente', 'en_preparation', 'livree', 'annulee'),
     defaultValue: 'en_attente',
     allowNull: false
   },

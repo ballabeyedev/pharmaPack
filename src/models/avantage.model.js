@@ -29,12 +29,21 @@ const Avantage = sequelize.define('Avantage', {
   created_by: {
     type: DataTypes.UUID,
     allowNull: true
+  },
+  updated_by: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
+  deleted_by: {
+    type: DataTypes.UUID,
+    allowNull: true
   }
 }, {
   tableName: 'avantages',
   timestamps: true,
   updatedAt: false,
-  underscored: true
+  underscored: true,
+  paranoid: true, 
 });
 
 module.exports = Avantage;
