@@ -5,7 +5,7 @@ function isAdmin(req, res, next) {
   }
 
   // Vérifier le rôle
-  if (req.user.role !== 'Admin') {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({ message: "Accès réservé aux administrateurs" });
   }
 
