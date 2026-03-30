@@ -66,7 +66,16 @@ class AdminService {
 
   static async listerProduit() {
     try {
-      const produits = await Produit.findAll();
+      const produits = await Produit.findAll({
+        include: [
+          {
+            model: Categorie,
+            as: 'categorie',
+            attributes: ['id', 'nom'] 
+          }
+        ],
+        order: [['created_at', 'DESC']]
+      });
 
       return {
         message: "Liste des produits",
@@ -379,7 +388,7 @@ class AdminService {
   // Modifier une niveau
   static async modifierNiveau(niveauId, data, userId) {
     try {
-      const niveau = await Categorie.findByPk(niveau);
+      const niveau = await Niveau.findByPk(niveau);
       if (!niveau) return { message: "Niveau non trouvée" };
 
       await niveau.update({ ...data, updated_by: userId });

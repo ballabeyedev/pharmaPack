@@ -22,7 +22,7 @@ const Niveau = sequelize.define('Niveau', {
 }, {
   tableName: 'niveaux',
   timestamps: true,
-  createdAt: false,
+  createdAt: created_at,
   updatedAt: 'updated_at',
   underscored: true
 });
