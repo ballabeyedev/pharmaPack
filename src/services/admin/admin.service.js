@@ -413,13 +413,13 @@ class AdminService {
     }
   }
 
-  // Lister toutes les catégories non supprimées
+  // Lister toutes les niveaux non supprimées
   static async listeNiveau() {
     try {
       const niveau = await Niveau.findAll({
         order: [['created_at', 'DESC']]
       });
-      return { message: "Liste des catégories", niveau };
+      return { message: "Liste des niveaux", niveau };
     } catch (error) {
       console.error("Erreur listeNiveau :", error);
       throw error;
