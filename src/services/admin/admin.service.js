@@ -416,6 +416,56 @@ class AdminService {
       throw error;
     }
   }
+
+  static async getDashboardStats() {
+  try {
+    // 🔹 Pharmacies activées
+    const pharmaciesActives = await Pharmacie.count({
+      include: [{
+        model: User,
+        as: 'pharmacien',
+        where: { statut: 'actif' }
+      }]
+    });
+
+    // 🔹 Pharmacies en attente
+    const pharmaciesEnAttente = await Pharmacie.count({
+      include: [{
+        model: User,
+        as: 'pharmacien',
+        where: { statut: 'en_attente' }
+      }]
+    });
+
+    // 🔹 Commandes validées
+    const commandesValidees = await Commande.count({
+      where: { statut: 'en_preparation' } // ou 'validee' selon ton système
+    });
+
+    // 🔹 Commandes en attente
+    const commandesEnAttente = await Commande.count({
+      where: { statut: 'en_attente' }
+    });
+
+    // 🔹 Nombre total de produits
+    const totalProduits = await Produit.count();
+
+    return {
+      message: "Statistiques du dashboard",
+      stats: {
+        pharmaciesActives,
+        pharmaciesEnAttente,
+        commandesValidees,
+        commandesEnAttente,
+        totalProduits
+      }
+    };
+
+  } catch (error) {
+    console.error("Erreur getDashboardStats :", error);
+    throw error;
+  }
+}
 }
 
 module.exports = AdminService;

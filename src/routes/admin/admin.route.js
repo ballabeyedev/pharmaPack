@@ -64,4 +64,6 @@ router.post('/ajout-niveaux',       adminController.ajouterNiveau);
 router.put('/modifier-niveaux/:id',    adminController.modifierNiveau);
 router.delete('/supprimer-niveaux/:id', adminController.supprimerNiveau);
 
+router.get('/donnee-dashboard', adminController.getDashboardStats);
+
 module.exports = router;

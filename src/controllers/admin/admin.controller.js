@@ -498,6 +498,24 @@ const supprimerNiveau = async (req, res) => {
   }
 };
 
+/**
+ * Statistiques Dashboard
+ * @route   GET /admin/dashboard
+ * @access  Admin
+ */
+const getDashboardStats = async (req, res) => {
+  try {
+    const result = await AdminService.getDashboardStats();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur getDashboardStats controller :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la récupération des statistiques",
+      error: error.message
+    });
+  }
+};
+
 // ─────────────────────────────────────────────
 // EXPORTS
 // ─────────────────────────────────────────────
@@ -535,4 +553,6 @@ module.exports = {
   ajouterNiveau,
   modifierNiveau,
   supprimerNiveau,
+
+  getDashboardStats,
 };
