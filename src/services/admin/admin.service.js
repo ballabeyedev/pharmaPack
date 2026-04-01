@@ -388,7 +388,7 @@ class AdminService {
   // Modifier une niveau
   static async modifierNiveau(niveauId, data, userId) {
     try {
-      const niveau = await Niveau.findByPk(niveau);
+      const niveau = await Niveau.findByPk(niveauId);
       if (!niveau) return { message: "Niveau non trouvée" };
 
       await niveau.update({ ...data, updated_by: userId });
@@ -475,6 +475,97 @@ class AdminService {
     throw error;
   }
 }
+
+
+
+
+static async listeAdmins() {
+  try {
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: { exclude: ['mot_de_passe'] },
+      order: [['created_at', 'DESC']]
+    });
+
+    return { message: "Liste des admins", admins };
+  } catch (error) {
+    console.error("Erreur listeAdmins :", error);
+    throw error;
+  }
+}
+
+static async creerAdmin(data, createdBy) {
+  try {
+    const hashedPassword = await bcrypt.hash(data.mot_de_passe, 10);
+
+    const admin = await User.create({
+      nom: data.nom,
+      prenom: data.prenom,
+      email: data.email,
+      mot_de_passe: hashedPassword,
+      telephone: data.telephone,
+      adresse: data.adresse,
+      role: 'admin',
+      statut: 'actif',
+      permissions: data.permissions, // 🔥 important
+      created_by: createdBy
+    });
+
+    return {
+      message: "Admin créé avec succès",
+      admin
+    };
+
+  } catch (error) {
+    console.error("Erreur creerAdmin :", error);
+    throw error;
+  }
+}
+
+static async modifierAdmin(adminId, data, updatedBy) {
+  try {
+    const admin = await User.findByPk(adminId);
+
+    if (!admin || admin.role !== 'admin') {
+      return { message: "Admin non trouvé" };
+    }
+
+    await admin.update({
+      ...data,
+      updated_by: updatedBy
+    });
+
+    return {
+      message: "Admin modifié avec succès",
+      admin
+    };
+
+  } catch (error) {
+    console.error("Erreur modifierAdmin :", error);
+    throw error;
+  }
+}
+
+static async supprimerAdmin(adminId, deletedBy) {
+  try {
+    const admin = await User.findByPk(adminId);
+
+    if (!admin || admin.role !== 'admin') {
+      return { message: "Admin non trouvé" };
+    }
+
+    await admin.update({ deleted_by: deletedBy });
+    await admin.destroy(); // paranoid = true
+
+    return { message: "Admin supprimé avec succès" };
+
+  } catch (error) {
+    console.error("Erreur supprimerAdmin :", error);
+    throw error;
+  }
+}
+
+
 }
 
 module.exports = AdminService;

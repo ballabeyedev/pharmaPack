@@ -516,6 +516,56 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+const creerAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.creerAdmin(req.body, req.user.id);
+    return res.status(201).json(result);
+  } catch (error) {
+    console.error("Erreur creerAdmin controller :", error);
+    return res.status(500).json({ message: "Erreur création admin", error: error.message });
+  }
+};
+
+const listeAdmins = async (req, res) => {
+  try {
+    const result = await AdminService.listeAdmins();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur listeAdmins controller :", error);
+    return res.status(500).json({ message: "Erreur récupération admins", error: error.message });
+  }
+};
+
+const modifierAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.modifierAdmin(req.params.id, req.body, req.user.id);
+
+    if (!result.admin) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur modifierAdmin controller :", error);
+    return res.status(500).json({ message: "Erreur modification admin", error: error.message });
+  }
+};
+
+const supprimerAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.supprimerAdmin(req.params.id, req.user.id);
+
+    if (result.message === "Admin non trouvé") {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur supprimerAdmin controller :", error);
+    return res.status(500).json({ message: "Erreur suppression admin", error: error.message });
+  }
+};
+
 // ─────────────────────────────────────────────
 // EXPORTS
 // ─────────────────────────────────────────────
@@ -555,4 +605,10 @@ module.exports = {
   supprimerNiveau,
 
   getDashboardStats,
+
+  // Admins
+  creerAdmin,
+  listeAdmins,
+  modifierAdmin,
+  supprimerAdmin,
 };

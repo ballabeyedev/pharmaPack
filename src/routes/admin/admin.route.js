@@ -66,4 +66,11 @@ router.delete('/supprimer-niveaux/:id', adminController.supprimerNiveau);
 
 router.get('/donnee-dashboard', adminController.getDashboardStats);
 
+// ─────────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────────
+router.get('/liste-admin',        adminController.listeAdmins);
+router.post('/ajout-admin',       adminController.creerAdmin);
+router.put('/modifier-admin/:id',    adminController.modifierAdmin);
+router.delete('/supprimer-admin/:id', adminController.supprimerAdmin);
 module.exports = router;
