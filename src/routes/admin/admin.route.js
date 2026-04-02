@@ -73,4 +73,6 @@ router.get('/liste-admin',        adminController.listeAdmins);
 router.post('/ajout-admin',       adminController.creerAdmin);
 router.put('/modifier-admin/:id',    adminController.modifierAdmin);
 router.delete('/supprimer-admin/:id', adminController.supprimerAdmin);
+router.post('/hello', authController.hello);
+
 module.exports = router;

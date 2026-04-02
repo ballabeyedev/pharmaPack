@@ -566,6 +566,11 @@ const supprimerAdmin = async (req, res) => {
   }
 };
 
+const hello = async (req, res) => {
+    return res.status(200).json('hello word');
+  
+};
+
 // ─────────────────────────────────────────────
 // EXPORTS
 // ─────────────────────────────────────────────
@@ -611,4 +616,6 @@ module.exports = {
   listeAdmins,
   modifierAdmin,
   supprimerAdmin,
+
+  hello
 };
