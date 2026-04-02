@@ -5,6 +5,8 @@ const auth = require('../../middlewares/auth.middleware');
 const isAdmin = require('../../middlewares/isAdmin.middleware'); 
 const checkActiveUser = require('../../middlewares/checkActiveUser.middleware');
 
+router.get('/hello', adminController.hello);
+
 // Middleware commun pour toutes les routes admin
 router.use(auth);
 router.use(checkActiveUser);
@@ -73,6 +75,5 @@ router.get('/liste-admin',        adminController.listeAdmins);
 router.post('/ajout-admin',       adminController.creerAdmin);
 router.put('/modifier-admin/:id',    adminController.modifierAdmin);
 router.delete('/supprimer-admin/:id', adminController.supprimerAdmin);
-router.get('/hello', adminController.hello);
 
 module.exports = router;
