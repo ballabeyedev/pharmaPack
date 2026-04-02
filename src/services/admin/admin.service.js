@@ -186,7 +186,7 @@ class AdminService {
             where: {
               statut: { [Op.ne]: 'en_attente' } 
             },
-            attributes: ['id', 'nom', 'prenom', 'email', 'statut', 'role']
+            attributes: ['id', 'nom', 'prenom', 'email', 'statut', 'role', 'telephone']
           }
         ]
       });
@@ -206,7 +206,7 @@ class AdminService {
             model: User,
             as: 'pharmacien',
             where: { statut: 'en_attente' }, 
-            attributes: ['id', 'nom', 'prenom', 'email', 'statut', 'role']
+            attributes: ['id', 'nom', 'prenom', 'email', 'statut', 'role', 'telephone']
           }
         ]
       });
