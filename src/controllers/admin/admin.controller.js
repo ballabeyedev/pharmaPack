@@ -1,6 +1,8 @@
 // controllers/admin/admin.controller.js
 const AdminService = require('../../services/admin/admin.service');
 const formatUser = require('../../utils/formatUser');
+const { uploadImage } = require('../../middlewares/uploadService');
+
 
 /**
  * Activer un utilisateur
@@ -74,12 +76,18 @@ const listerProduit = async (req, res) => {
  */
 const ajouterProduit = async (req, res) => {
   try {
-    console.log("BODY:", req.body);   // DEBUG
-    console.log("FILE:", req.file);   // DEBUG
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    let imageUrl = null;
+
+    if (req.file) {
+      imageUrl = await uploadImage(req.file.buffer);
+    }
 
     const data = {
       ...req.body,
-      image: req.file ? req.file.filename : null
+      image: imageUrl
     };
 
     const result = await AdminService.ajouterProduit(data, req.user.id);
@@ -93,6 +101,7 @@ const ajouterProduit = async (req, res) => {
     });
   }
 };
+
 
 /**
  * Modifier un produit

@@ -1,6 +1,8 @@
 const { User, Pharmacie, Produit, Commande, CommandeDetails, Avantage, Conversion, Categorie, Niveau, Permission } = require('../../models');
 
 const { Op } = require('sequelize');
+const { uploadImage } = require('../../middlewares/uploadService');
+
 
 class AdminService {
 
@@ -88,27 +90,24 @@ class AdminService {
     }
   }
 
- static async ajouterProduit(data, userId) {
-    try {
-      if (!data.nom || !data.prix) {
-        return res.status(400).json({
-          message: "Nom et prix sont obligatoires"
-        });
-      }
-      const produit = await Produit.create({
-        ...data, 
-        prix: Number(data.prix),
-        prix_promo: data.prix_promo ? Number(data.prix_promo) : null,
-        stock: data.stock ? Number(data.stock) : 0,
-        categorie_id: data.categorie_id || null,
-        created_by: userId 
-      });
-      return { message: "Produit ajouté", produit };
-    } catch (error) {
-      console.error("Erreur ajouterProduit :", error);
-      throw error;
-    }
+static async ajouterProduit(data, userId) {
+  try {
+    const produit = await Produit.create({
+      ...data,
+      prix: Number(data.prix),
+      prix_promo: data.prix_promo ? Number(data.prix_promo) : null,
+      stock: data.stock ? Number(data.stock) : 0,
+      categorie_id: data.categorie_id || null,
+      statut: data.statut === 'true' || data.statut === true,
+      created_by: userId
+    });
+
+    return { message: "Produit ajouté", produit };
+  } catch (error) {
+    console.error("Erreur ajouterProduit :", error);
+    throw error;
   }
+}
 
   static async modifierProduit(produitId, data, userId) {
     try {
