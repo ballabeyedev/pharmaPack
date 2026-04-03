@@ -1,4 +1,4 @@
-const { User, Pharmacie, Produit, Commande, CommandeDetails, Avantage, Conversion, Categorie, Niveau } = require('../../models');
+const { User, Pharmacie, Produit, Commande, CommandeDetails, Avantage, Conversion, Categorie, Niveau, Permission } = require('../../models');
 
 const { Op } = require('sequelize');
 
@@ -562,6 +562,306 @@ static async supprimerAdmin(adminId, deletedBy) {
   } catch (error) {
     console.error("Erreur supprimerAdmin :", error);
     throw error;
+  }
+}
+
+
+ static async ajoutAdmin({
+  nom,
+  prenom,
+  email,
+  mot_de_passe,
+  adresse,
+  telephone,
+  photoProfil,
+  role = 'admin',
+  permissions = []
+}) {
+
+  const t = await sequelize.transaction();
+
+  try {
+    const emailClean = email.trim().toLowerCase();
+
+    // 🔍 Vérification email
+    const exist = await User.findOne({
+      where: { email: emailClean },
+      transaction: t
+    });
+
+    if (exist) {
+      await t.rollback();
+      return { success: false, message: "Cet email est déjà utilisé" };
+    }
+
+    // 🔍 Vérification téléphone
+    if (telephone) {
+      const telExist = await User.findOne({
+        where: { telephone },
+        transaction: t
+      });
+
+      if (telExist) {
+        await t.rollback();
+        return { success: false, message: "Téléphone déjà utilisé" };
+      }
+    }
+
+    // 🔐 Hash mot de passe
+    const hashedPassword = await bcrypt.hash(
+      mot_de_passe,
+      bcryptConfig.saltRounds
+    );
+
+    // 🖼️ Upload photo
+    let photoUrl = null;
+    if (photoProfil?.buffer) {
+      photoUrl = await uploadImage(photoProfil.buffer);
+    }
+
+    // 👤 Création utilisateur
+    const utilisateur = await User.create({
+      nom,
+      prenom,
+      email: emailClean,
+      mot_de_passe: hashedPassword,
+      adresse,
+      telephone,
+      photo_profil: photoUrl,
+      role,
+      aDejaConnecter: false
+    }, { transaction: t });
+
+    // 🎯 AJOUT DES PERMISSIONS
+    if (permissions && permissions.length > 0) {
+      const perms = await Permission.findAll({
+        where: { id: permissions },
+        transaction: t
+      });
+
+      await utilisateur.setPermissions(perms, { transaction: t });
+    }
+
+    await t.commit();
+
+    return {
+      success: true,
+      message: "Création administrateur réussie",
+      utilisateur
+    };
+
+  } catch (err) {
+    await t.rollback();
+    throw err;
+  }
+}
+
+static async modifierAdmin(id, data) {
+  const t = await sequelize.transaction();
+
+  try {
+    const admin = await User.findByPk(id, { transaction: t });
+
+    if (!admin) {
+      await t.rollback();
+      return { success: false, message: "Admin introuvable" };
+    }
+
+    // 🔍 Vérifier email unique
+    if (data.email) {
+      const exist = await User.findOne({
+        where: {
+          email: data.email,
+          id: { [Op.ne]: id }
+        },
+        transaction: t
+      });
+
+      if (exist) {
+        await t.rollback();
+        return { success: false, message: "Email déjà utilisé" };
+      }
+    }
+
+    // 🔄 Update infos
+    await admin.update({
+      nom: data.nom ?? admin.nom,
+      prenom: data.prenom ?? admin.prenom,
+      email: data.email ?? admin.email,
+      telephone: data.telephone ?? admin.telephone,
+      adresse: data.adresse ?? admin.adresse,
+      photo_profil: data.photo_profil ?? admin.photo_profil,
+    }, { transaction: t });
+
+    // 🎯 Update permissions
+    if (data.permissions) {
+      const perms = await Permission.findAll({
+        where: { id: data.permissions },
+        transaction: t
+      });
+
+      await admin.setPermissions(perms, { transaction: t });
+    }
+
+    await t.commit();
+
+    return {
+      success: true,
+      message: "Admin modifié avec succès"
+    };
+
+  } catch (err) {
+    await t.rollback();
+    throw err;
+  }
+}
+
+static async desactiverAdmin(id) {
+  try {
+    const admin = await User.findByPk(id);
+
+    if (!admin) {
+      return { success: false, message: "Admin introuvable" };
+    }
+
+    admin.statut = 'inactif';
+    await admin.save();
+
+    return {
+      success: true,
+      message: "Admin désactivé"
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async activerAdmin(id) {
+  try {
+    const admin = await User.findByPk(id);
+
+    if (!admin) {
+      return { success: false, message: "Admin introuvable" };
+    }
+
+    admin.statut = 'actif';
+    await admin.save();
+
+    return {
+      success: true,
+      message: "Admin activé"
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async listeAdmins() {
+  try {
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: { exclude: ['mot_de_passe'] },
+      include: [
+        {
+          model: Permission,
+          as: 'permissions',
+          attributes: ['id', 'key', 'label'],
+          through: { attributes: [] }
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    return {
+      success: true,
+      admins
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async listePermissions() {
+  try {
+    const permissions = await Permission.findAll({
+      order: [['created_at', 'ASC']]
+    });
+
+    return {
+      success: true,
+      permissions
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async ajouterPermission({ key, label }) {
+  try {
+    const exist = await Permission.findOne({ where: { key } });
+
+    if (exist) {
+      return { success: false, message: "Permission déjà existante" };
+    }
+
+    const permission = await Permission.create({ key, label });
+
+    return {
+      success: true,
+      message: "Permission ajoutée",
+      permission
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async modifierPermission(id, data) {
+  try {
+    const permission = await Permission.findByPk(id);
+
+    if (!permission) {
+      return { success: false, message: "Permission introuvable" };
+    }
+
+    await permission.update({
+      key: data.key ?? permission.key,
+      label: data.label ?? permission.label
+    });
+
+    return {
+      success: true,
+      message: "Permission modifiée",
+      permission
+    };
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+static async supprimerPermission(id) {
+  try {
+    const permission = await Permission.findByPk(id);
+
+    if (!permission) {
+      return { success: false, message: "Permission introuvable" };
+    }
+
+    await permission.destroy();
+
+    return {
+      success: true,
+      message: "Permission supprimée"
+    };
+
+  } catch (err) {
+    throw err;
   }
 }
 

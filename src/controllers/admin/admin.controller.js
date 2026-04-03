@@ -516,61 +516,217 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-const creerAdmin = async (req, res) => {
-  try {
-    const result = await AdminService.creerAdmin(req.body, req.user.id);
-    return res.status(201).json(result);
-  } catch (error) {
-    console.error("Erreur creerAdmin controller :", error);
-    return res.status(500).json({ message: "Erreur création admin", error: error.message });
-  }
-};
-
-const listeAdmins = async (req, res) => {
-  try {
-    const result = await AdminService.listeAdmins();
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Erreur listeAdmins controller :", error);
-    return res.status(500).json({ message: "Erreur récupération admins", error: error.message });
-  }
-};
-
-const modifierAdmin = async (req, res) => {
-  try {
-    const result = await AdminService.modifierAdmin(req.params.id, req.body, req.user.id);
-
-    if (!result.admin) {
-      return res.status(404).json({ message: result.message });
-    }
-
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Erreur modifierAdmin controller :", error);
-    return res.status(500).json({ message: "Erreur modification admin", error: error.message });
-  }
-};
-
-const supprimerAdmin = async (req, res) => {
-  try {
-    const result = await AdminService.supprimerAdmin(req.params.id, req.user.id);
-
-    if (result.message === "Admin non trouvé") {
-      return res.status(404).json({ message: result.message });
-    }
-
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Erreur supprimerAdmin controller :", error);
-    return res.status(500).json({ message: "Erreur suppression admin", error: error.message });
-  }
-};
-
 const hello = async (req, res) => {
     return res.status(200).json({
       message:"hello word"
 });
   
+};
+
+/**
+ * Créer un admin
+ * @route   POST /admin/admins
+ * @access  Admin
+ */
+const creerAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.ajoutAdmin(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.message });
+    }
+
+    return res.status(201).json(result);
+
+  } catch (error) {
+    console.error("Erreur creerAdmin controller :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la création de l'admin",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Modifier un admin
+ * @route   PUT /admin/admins/:id
+ * @access  Admin
+ */
+const modifierAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.modifierAdmin(req.params.id, req.body);
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur modifierAdmin controller :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la modification",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Désactiver un admin
+ * @route   PUT /admin/admins/:id/desactiver
+ * @access  Admin
+ */
+const desactiverAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.desactiverAdmin(req.params.id);
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur desactiverAdmin controller :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la désactivation",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Activer un admin
+ * @route   PUT /admin/admins/:id/activer
+ * @access  Admin
+ */
+const activerAdmin = async (req, res) => {
+  try {
+    const result = await AdminService.activerAdmin(req.params.id);
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur activerAdmin controller :", error);
+    return res.status(500).json({
+      message: "Erreur lors de l'activation",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Lister tous les admins
+ * @route   GET /admin/admins
+ * @access  Admin
+ */
+const listeAdmins = async (req, res) => {
+  try {
+    const result = await AdminService.listeAdmins();
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur listeAdmins controller :", error);
+    return res.status(500).json({
+      message: "Erreur récupération admins",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Lister toutes les permissions
+ * @route   GET /admin/permissions
+ * @access  Admin
+ */
+const listePermissions = async (req, res) => {
+  try {
+    const result = await AdminService.listePermissions();
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur listePermissions controller :", error);
+    return res.status(500).json({
+      message: "Erreur récupération permissions",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Ajouter une permission
+ * @route   POST /admin/permissions
+ * @access  Admin
+ */
+const ajouterPermission = async (req, res) => {
+  try {
+    const result = await AdminService.ajouterPermission(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.message });
+    }
+
+    return res.status(201).json(result);
+
+  } catch (error) {
+    console.error("Erreur ajouterPermission controller :", error);
+    return res.status(500).json({
+      message: "Erreur ajout permission",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Modifier une permission
+ * @route   PUT /admin/permissions/:id
+ * @access  Admin
+ */
+const modifierPermission = async (req, res) => {
+  try {
+    const result = await AdminService.modifierPermission(req.params.id, req.body);
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur modifierPermission controller :", error);
+    return res.status(500).json({
+      message: "Erreur modification permission",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Supprimer une permission
+ * @route   DELETE /admin/permissions/:id
+ * @access  Admin
+ */
+const supprimerPermission = async (req, res) => {
+  try {
+    const result = await AdminService.supprimerPermission(req.params.id);
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Erreur supprimerPermission controller :", error);
+    return res.status(500).json({
+      message: "Erreur suppression permission",
+      error: error.message
+    });
+  }
 };
 
 // ─────────────────────────────────────────────
@@ -619,5 +775,18 @@ module.exports = {
   modifierAdmin,
   supprimerAdmin,
 
-  hello
+  hello,
+
+  // Admins
+  creerAdmin,
+  modifierAdmin,
+  desactiverAdmin,
+  activerAdmin,
+  listeAdmins,
+
+  // Permissions
+  listePermissions,
+  ajouterPermission,
+  modifierPermission,
+  supprimerPermission,
 };

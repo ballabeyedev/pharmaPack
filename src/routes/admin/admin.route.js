@@ -48,7 +48,7 @@ router.put('/rejeter-pharmacies/:id', adminController.rejeterInscriptionPharmaci
 router.get('/liste-avantages', adminController.listeAvantages);
 router.post('/ajout-avantages', adminController.ajouterAvantage);
 router.put('/modifier-avantages/:id', adminController.modifierAvantage);
-router.delete('supprimer-avantages/:id', adminController.supprimerAvantage);
+router.delete('/supprimer-avantages/:id', adminController.supprimerAvantage);
 
 // ─────────────────────────────────────────────
 // CATÉGORIES
@@ -75,5 +75,15 @@ router.get('/liste-admin',        adminController.listeAdmins);
 router.post('/ajout-admin',       adminController.creerAdmin);
 router.put('/modifier-admin/:id',    adminController.modifierAdmin);
 router.delete('/supprimer-admin/:id', adminController.supprimerAdmin);
+router.put('/activer-admin/:id', adminController.activerAdmin);
+router.put('/desactiver-admin/:id', adminController.desactiverAdmin);
+
+// ─────────────────────────────────────────────
+// PERMISSIONS
+// ─────────────────────────────────────────────
+router.get('/liste-permissions', adminController.listePermissions);
+router.post('/ajout-permission', adminController.ajouterPermission);
+router.put('/modifier-permission/:id', adminController.modifierPermission);
+router.delete('/supprimer-permission/:id', adminController.supprimerPermission);
 
 module.exports = router;

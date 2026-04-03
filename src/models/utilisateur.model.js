@@ -57,9 +57,8 @@ const User = sequelize.define('User', {
     defaultValue: 'en_attente',
   },
 
-  permissions: {
-    type: DataTypes.JSON, 
-    allowNull: true
+  aDejaConnecter:{
+    type: DataTypes.BOOLEAN
   },
 
   created_by: {

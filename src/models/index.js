@@ -10,6 +10,8 @@ const TransactionFidelite = require('./transactionFidelite.model');
 const Conversion = require('./conversion.model');
 const Niveau = require('./niveau.model');
 const Promotion = require('./promotion.model');
+const Permission = require('./permission.model');
+
 
 /* ===================== RELATIONS UTILISATEUR ===================== */
 // Un utilisateur peut gérer plusieurs pharmacies (si rôle = pharmacie)
@@ -158,6 +160,20 @@ PortefeuilleFidelite.belongsTo(Niveau, {
   as: 'niveau'
 });
 
+User.belongsToMany(Permission, {
+  through: 'user_permissions',
+  foreignKey: 'user_id',
+  otherKey: 'permission_id',
+  as: 'permissions'
+});
+
+Permission.belongsToMany(User, {
+  through: 'user_permissions',
+  foreignKey: 'permission_id',
+  otherKey: 'user_id',
+  as: 'users'
+});
+
 module.exports = {
   User,
   Pharmacie,
@@ -170,5 +186,6 @@ module.exports = {
   TransactionFidelite,
   Conversion,
   Niveau,
-  Promotion
+  Promotion,
+  Permission
 };
