@@ -768,13 +768,6 @@ module.exports = {
   supprimerNiveau,
 
   getDashboardStats,
-
-  // Admins
-  creerAdmin,
-  listeAdmins,
-  modifierAdmin,
-  supprimerAdmin,
-
   hello,
 
   // Admins
