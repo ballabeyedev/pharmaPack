@@ -31,7 +31,12 @@ User.hasMany(Produit, {
 });
 Produit.belongsTo(User, { 
   foreignKey: 'created_by', 
-  as: 'createur' 
+  as: 'created_by', 
+});
+
+Produit.belongsTo(User, { 
+  foreignKey: 'updated_by', 
+  as: 'updated_by', 
 });
 
 // Un utilisateur peut créer plusieurs commandes

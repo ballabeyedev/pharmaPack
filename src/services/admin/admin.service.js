@@ -66,29 +66,39 @@ class AdminService {
     }
   }
 
-  static async listerProduit() {
-    try {
-      const produits = await Produit.findAll({
-        include: [
-          {
-            model: Categorie,
-            as: 'categorie',
-            attributes: ['id', 'nom'] 
-          }
-        ],
-        order: [['created_at', 'DESC']]
-      });
+static async listerProduit() {
+  try {
+    const produits = await Produit.findAll({
+      include: [
+        {
+          model: Categorie,
+          as: 'categorie',
+          attributes: ['id', 'nom']
+        },
+        {
+          model: User,        // <-- inclure le modèle User
+          as: 'created_by',   // doit correspondre à l'alias défini dans l'association
+          attributes: ['id', 'nom', 'prenom']
+        },
+        {
+          model: User,
+          as: 'updated_by',   // idem pour updated_by
+          attributes: ['id', 'nom', 'prenom']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
 
-      return {
-        message: "Liste des produits",
-        produits
-      };
+    return {
+      message: "Liste des produits",
+      produits
+    };
 
-    } catch (error) {
-      console.error("Erreur listerProduit :", error);
-      throw error;
-    }
+  } catch (error) {
+    console.error("Erreur listerProduit :", error);
+    throw error;
   }
+}
 
 static async ajouterProduit(data, userId) {
   try {
