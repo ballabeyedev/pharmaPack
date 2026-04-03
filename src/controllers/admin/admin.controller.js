@@ -74,11 +74,23 @@ const listerProduit = async (req, res) => {
  */
 const ajouterProduit = async (req, res) => {
   try {
-    const result = await AdminService.ajouterProduit(req.body, req.user.id);
+    console.log("BODY:", req.body);   // DEBUG
+    console.log("FILE:", req.file);   // DEBUG
+
+    const data = {
+      ...req.body,
+      image: req.file ? req.file.filename : null
+    };
+
+    const result = await AdminService.ajouterProduit(data, req.user.id);
+
     return res.status(201).json(result);
   } catch (error) {
     console.error("Erreur ajouterProduit controller :", error);
-    return res.status(500).json({ message: "Erreur lors de l'ajout du produit", error: error.message });
+    return res.status(500).json({
+      message: "Erreur lors de l'ajout du produit",
+      error: error.message
+    });
   }
 };
 

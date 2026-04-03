@@ -4,6 +4,7 @@ const adminController = require('../../controllers/admin/admin.controller');
 const auth = require('../../middlewares/auth.middleware');
 const isAdmin = require('../../middlewares/isAdmin.middleware'); 
 const checkActiveUser = require('../../middlewares/checkActiveUser.middleware');
+const upload = require('../../middlewares/upload.middleware');
 
 router.get('/hello', adminController.hello);
 
@@ -22,7 +23,7 @@ router.put('/desactiver-utilisateur/:id', adminController.desactiverUtilisateur)
 // PRODUITS
 // ─────────────────────────────────────────────
 router.get('/liste-produits', adminController.listerProduit);
-router.post('/ajout-produits', adminController.ajouterProduit);
+router.post('/ajout-produits', upload.single('image'), adminController.ajouterProduit);
 router.put('/modifier-produits/:id', adminController.modifierProduit);
 router.delete('/supprimer-produits/:id', adminController.supprimerProduit);
 

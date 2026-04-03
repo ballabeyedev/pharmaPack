@@ -90,7 +90,19 @@ class AdminService {
 
  static async ajouterProduit(data, userId) {
     try {
-      const produit = await Produit.create({ ...data, created_by: userId });
+      if (!data.nom || !data.prix) {
+        return res.status(400).json({
+          message: "Nom et prix sont obligatoires"
+        });
+      }
+      const produit = await Produit.create({
+        ...data, 
+        prix: Number(data.prix),
+        prix_promo: data.prix_promo ? Number(data.prix_promo) : null,
+        stock: data.stock ? Number(data.stock) : 0,
+        categorie_id: data.categorie_id || null,
+        created_by: userId 
+      });
       return { message: "Produit ajouté", produit };
     } catch (error) {
       console.error("Erreur ajouterProduit :", error);
