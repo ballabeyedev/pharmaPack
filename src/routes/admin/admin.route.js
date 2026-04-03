@@ -74,7 +74,6 @@ router.get('/donnee-dashboard', adminController.getDashboardStats);
 router.get('/liste-admin',        adminController.listeAdmins);
 router.post('/ajout-admin',       adminController.creerAdmin);
 router.put('/modifier-admin/:id',    adminController.modifierAdmin);
-router.delete('/supprimer-admin/:id', adminController.supprimerAdmin);
 router.put('/activer-admin/:id', adminController.activerAdmin);
 router.put('/desactiver-admin/:id', adminController.desactiverAdmin);
 
