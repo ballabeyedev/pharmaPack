@@ -25,18 +25,19 @@ Pharmacie.belongsTo(User, {
 });
 
 // Un utilisateur peut créer plusieurs produits
+// Associations
 User.hasMany(Produit, { 
   foreignKey: 'created_by', 
-  as: 'produits' 
+  as: 'produits_crees' 
 });
 Produit.belongsTo(User, { 
   foreignKey: 'created_by', 
-  as: 'created_by', 
+  as: 'createur'  // <-- ici, alias différent du nom de colonne
 });
 
 Produit.belongsTo(User, { 
   foreignKey: 'updated_by', 
-  as: 'updated_by', 
+  as: 'modificateur'  // <-- idem
 });
 
 // Un utilisateur peut créer plusieurs commandes

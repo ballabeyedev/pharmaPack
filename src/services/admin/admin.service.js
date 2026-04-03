@@ -70,25 +70,12 @@ static async listerProduit() {
   try {
     const produits = await Produit.findAll({
       include: [
-        {
-          model: Categorie,
-          as: 'categorie',
-          attributes: ['id', 'nom']
-        },
-        {
-          model: User,        // <-- inclure le modèle User
-          as: 'created_by',   // doit correspondre à l'alias défini dans l'association
-          attributes: ['id', 'nom', 'prenom']
-        },
-        {
-          model: User,
-          as: 'updated_by',   // idem pour updated_by
-          attributes: ['id', 'nom', 'prenom']
-        }
+        { model: Categorie, as: 'categorie', attributes: ['id', 'nom'] },
+        { model: User, as: 'createur', attributes: ['nom', 'prenom'] },
+        { model: User, as: 'modificateur', attributes: ['nom', 'prenom'] },
       ],
       order: [['created_at', 'DESC']]
     });
-
     return {
       message: "Liste des produits",
       produits
