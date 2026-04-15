@@ -20,6 +20,7 @@ app.use(require('morgan')('combined'));
 const authRoutes = require('./routes/auth.route');
 const pharmacieRoutes = require('./routes/pharmacie/pharmacie.route'); 
 const adminRoutes = require('./routes/admin/admin.route'); 
+const accountAdminRoutes = require('./routes/admin/account.route');
 
 
 // Serveur fichiers statiques pour les uploads [DÉSACTIVÉ - Sécurité]
@@ -31,5 +32,5 @@ app.use('/pharmaPack/auth', authRoutes);
 
 app.use('/pharmaPack/pharmacie', pharmacieRoutes); 
 app.use('/pharmaPack/admin', adminRoutes);
-
+app.use('/pharmaPack/admin/account', accountAdminRoutes);
 module.exports = app;

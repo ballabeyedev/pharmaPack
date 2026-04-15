@@ -81,6 +81,16 @@ const User = sequelize.define('User', {
     allowNull: true,
   },
 
+  reset_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+
+  reset_token_expire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+
 }, {
   tableName: 'utilisateurs',
   timestamps: true,
