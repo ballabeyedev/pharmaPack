@@ -1,6 +1,5 @@
 import express from "express";
-import AccountAdminController from "../../controllers/admin/account.controller";
-
+import AccountAdminController from "../../controllers/admin/account.controller.js";
 const router = express.Router();
 
 // 📩 Demande de reset

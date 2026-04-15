@@ -1,5 +1,4 @@
-import AccountAdminService from "../../services/admin/account.service";
-
+import AccountAdminService from "../../services/admin/account.service.js";
 class AccountAdminController {
 
   // 📩 Demande de reset
