@@ -1,6 +1,7 @@
-import crypto from "crypto";
-import nodemailer from "nodemailer";
-import bcrypt from "bcrypt";
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+const {User} = require("../../models");
 
 class AccountAdminService {
 
@@ -16,20 +17,15 @@ class AccountAdminService {
         return { message: "Seuls les administrateurs peuvent utiliser cette fonctionnalité" };
       }
 
-      // 🔐 Générer token
       const token = crypto.randomBytes(32).toString("hex");
-
-      // ⏱ Expiration 1h
       const expire = new Date(Date.now() + 3600000);
 
       utilisateur.reset_token = token;
       utilisateur.reset_token_expire = expire;
       await utilisateur.save();
 
-      // ✅ Lien correct
       const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
-      // 📧 Config email
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -42,18 +38,13 @@ class AccountAdminService {
         from: `"PharmaPack" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: "Réinitialisation du mot de passe",
-        html: `
-          <h3>Réinitialisation</h3>
-          <p>Cliquez ici :</p>
-          <a href="${resetLink}">${resetLink}</a>
-          <p>Expire dans 1 heure</p>
-        `,
+        html: `<a href="${resetLink}">${resetLink}</a>`,
       });
 
       return { message: "Email envoyé avec succès" };
 
     } catch (error) {
-      console.error("Erreur passwordOublie :", error);
+      console.error(error);
       throw error;
     }
   }
@@ -67,7 +58,6 @@ class AccountAdminService {
       throw new Error("Token invalide ou expiré");
     }
 
-    // 🔐 HASH du mot de passe
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.mot_de_passe = hashedPassword;
@@ -80,4 +70,4 @@ class AccountAdminService {
   }
 }
 
-export default AccountAdminService;
+module.exports = AccountAdminService;

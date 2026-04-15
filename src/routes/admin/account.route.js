@@ -1,11 +1,12 @@
 import express from "express";
-import AccountAdminController from "../../controllers/admin/account.controller.js";
+const accountAdminController = require('../../controllers/admin/account.controller');
+
 const router = express.Router();
 
 // 📩 Demande de reset
-router.post("/password-oublie", AccountAdminController.passwordOublie);
+router.post("/password-oublie", accountAdminController.passwordOublie);
 
 // 🔐 Reset password avec token
-router.post("/reset-password/:token", AccountAdminController.resetPassword);
+router.post("/reset-password/:token", accountAdminController.resetPassword);
 
-export default router;
+module.exports = router; 
