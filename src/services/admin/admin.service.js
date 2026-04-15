@@ -206,6 +206,21 @@ static async ajouterProduit(data, userId) {
     }
   }
 
+  static async getPharmacieDetails(pharmacieId) {
+    try {
+      const pharmacie = await Pharmacie.findByPk(pharmacieId, {
+        include: [
+          { model: User, as: 'pharmacien', attributes: ['id', 'nom', 'prenom', 'email', 'statut', 'role', 'telephone'] },
+        ]
+      });
+      return { message: "Détails de la pharmacie", pharmacie };
+    } catch (error) {
+      console.error("Erreur getPharmacieDetails :", error);
+      throw error;
+    }
+  }
+
+
   static async listePharmaciesEnAttente() {
     try {
       const pharmacies = await Pharmacie.findAll({

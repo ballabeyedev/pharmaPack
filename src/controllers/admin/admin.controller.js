@@ -95,6 +95,10 @@ const listePharmacies = handle(async (req, res) => {
   return ok(res, await AdminService.listePharmacies());
 });
 
+const detailPharmacies = handle(async (req, res) => {
+  return ok(res, await AdminService.getPharmacieDetails(req.params.id));
+});
+
 const listePharmaciesEnAttente = handle(async (req, res) => {
   return ok(res, await AdminService.listePharmaciesEnAttente());
 });
@@ -259,7 +263,7 @@ module.exports = {
   // Commandes
   listeCommandes, validerCommande, rejeterCommande, livrerCommande,
   // Pharmacies
-  listePharmacies, listePharmaciesEnAttente,
+  listePharmacies, listePharmaciesEnAttente, detailPharmacies,
   validerInscriptionPharmacies, rejeterInscriptionPharmacies,
   // Avantages
   listeAvantages, ajouterAvantage, modifierAvantage, supprimerAvantage,

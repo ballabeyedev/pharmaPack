@@ -39,6 +39,7 @@ router.put('/livrer-commandes/:id',  adminController.livrerCommande);
 // PHARMACIES
 // ─────────────────────────────────────────────
 router.get('/liste-pharmacies', adminController.listePharmacies);
+router.get('/detail-pharmacies/:id', adminController.detailPharmacies);
 router.get('/liste-pharmacies-enattente', adminController.listePharmaciesEnAttente);
 router.put('/valider-pharmacies/:id', adminController.validerInscriptionPharmacies);
 router.put('/rejeter-pharmacies/:id', adminController.rejeterInscriptionPharmacies);
