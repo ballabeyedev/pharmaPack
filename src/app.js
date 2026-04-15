@@ -28,7 +28,7 @@ const accountAdminRoutes = require('./routes/admin/account.route');
 
 
 // Définition des routes
-app.use('/pharmaPack/auth', authRoutes);
+app.use('/pharmaPack/auth', authRoutes); 
 
 app.use('/pharmaPack/pharmacie', pharmacieRoutes); 
 app.use('/pharmaPack/admin', adminRoutes);
