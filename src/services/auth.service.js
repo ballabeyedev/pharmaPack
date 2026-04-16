@@ -110,40 +110,58 @@ class AuthService {
   }
 
   // -------------------- CONNEXION --------------------
-  static async login({ identifiant, mot_de_passe }) {
-    const isEmail = /\S+@\S+\.\S+/.test(identifiant);
-    const utilisateur = await User.findOne({
-      where: isEmail ? { email: identifiant } : { telephone: identifiant },
-    });
+static async login({ identifiant, mot_de_passe }) {
+  const isEmail = /\S+@\S+\.\S+/.test(identifiant);
 
-    if (!utilisateur) 
-      return { success: false, error: 'Identifiant ou mot de passe incorrect' };
-    
-    if (utilisateur.statut !== 'actif') {
-      return {
-        success: false,
-        error: `Votre compte est ${utilisateur.statut}. Veuillez contacter le support ou réactiver votre compte.`
-      };
-    }
+  const utilisateur = await User.findOne({
+    where: isEmail ? { email: identifiant } : { telephone: identifiant },
+  });
 
-    const valid = await bcrypt.compare(mot_de_passe, utilisateur.mot_de_passe);
-    if (!valid) {
-      return { success: false, message: 'Identifiant ou mot de passe incorrect' };
-    }
-
-    const token = jwt.sign({
-      id: utilisateur.id,
-      nom: utilisateur.nom,
-      prenom: utilisateur.prenom,
-      email: utilisateur.email,
-      adresse: utilisateur.adresse,
-      telephone: utilisateur.telephone,
-      photoProfil: utilisateur.photo_profil,
-      role: utilisateur.role,
-    }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
-
-    return { success: true, token, utilisateur };
+  // ✅ Message volontairement vague pour la sécurité
+  if (!utilisateur) {
+    return { success: false, error: 'Identifiant ou mot de passe incorrect' };
   }
+
+  // ✅ Messages clairs selon le statut du compte
+  if (utilisateur.statut === 'en_attente') {
+    return {
+      success: false,
+      error: 'Votre compte est en attente de validation par un administrateur.'
+    };
+  }
+
+  if (utilisateur.statut === 'inactif') {
+    return {
+      success: false,
+      error: 'Votre compte a été désactivé. Veuillez contacter le support.'
+    };
+  }
+
+  if (utilisateur.statut !== 'actif') {
+    return {
+      success: false,
+      error: `Votre compte est "${utilisateur.statut}". Veuillez contacter le support.`
+    };
+  }
+
+  const valid = await bcrypt.compare(mot_de_passe, utilisateur.mot_de_passe);
+  if (!valid) {
+    return { success: false, error: 'Identifiant ou mot de passe incorrect' };
+  }
+
+  const token = jwt.sign({
+    id:         utilisateur.id,
+    nom:        utilisateur.nom,
+    prenom:     utilisateur.prenom,
+    email:      utilisateur.email,
+    adresse:    utilisateur.adresse,
+    telephone:  utilisateur.telephone,
+    photoProfil: utilisateur.photo_profil,
+    role:       utilisateur.role,
+  }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
+
+  return { success: true, token, utilisateur };
+}
 
     static async passwordOublie(email) {
       try {
