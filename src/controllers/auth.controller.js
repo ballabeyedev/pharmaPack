@@ -121,7 +121,9 @@ exports.passwordOublie = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { token, newPassword } = req.body;
+    // ✅ token vient de l'URL, newPassword vient du body
+    const { token } = req.params;
+    const { newPassword } = req.body;
 
     if (!token || !newPassword) {
       return res.status(400).json({
@@ -137,7 +139,6 @@ exports.resetPassword = async (req, res) => {
 
   } catch (err) {
     console.error('Erreur reset password:', err);
-
     return res.status(400).json({
       message: err.message || "Erreur lors de la réinitialisation"
     });
