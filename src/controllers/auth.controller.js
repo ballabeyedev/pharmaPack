@@ -93,3 +93,53 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.passwordOublie = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "L'email est obligatoire"
+      });
+    }
+
+    const result = await AuthService.passwordOublie(email);
+
+    return res.status(200).json({
+      message: result.message
+    });
+
+  } catch (err) {
+    console.error('Erreur password oublié:', err);
+    return res.status(500).json({
+      message: "Erreur serveur",
+      erreur: err.message
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        message: "Token et nouveau mot de passe sont obligatoires"
+      });
+    }
+
+    const result = await AuthService.resetPassword(token, newPassword);
+
+    return res.status(200).json({
+      message: result.message
+    });
+
+  } catch (err) {
+    console.error('Erreur reset password:', err);
+
+    return res.status(400).json({
+      message: err.message || "Erreur lors de la réinitialisation"
+    });
+  }
+};
