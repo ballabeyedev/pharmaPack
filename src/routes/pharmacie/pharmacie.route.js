@@ -8,12 +8,12 @@ router.use(authMiddleware);
 
 
 router.get(
-    '/listear-produits',
+    '/lister-produits',
     PharmacieController.listerProduits
 );
 
 router.get(
-    '/recherche-produit',
+    '/rechercher-produit',
     PharmacieController.rechercherProduits
 );
 
