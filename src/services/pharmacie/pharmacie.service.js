@@ -85,10 +85,18 @@ class PharmacieService {
 
   // ===================== COMMANDER =====================
 
-  static async commanderProduits(userId, pharmacieId, produits) {
+  static async commanderProduits(userId, produits) {
     const transaction = await sequelize.transaction();
 
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
+
       let total = 0;
 
       for (const item of produits) {
@@ -104,7 +112,7 @@ class PharmacieService {
       }
 
       const commande = await Commande.create({
-        pharmacie_id: pharmacieId,
+        pharmacie_id: pharmacie.id,
         montant_total: total,
         created_by: userId
       }, { transaction });
@@ -130,7 +138,6 @@ class PharmacieService {
 
     } catch (error) {
       await transaction.rollback();
-      console.error(error);
       throw error;
     }
   }
