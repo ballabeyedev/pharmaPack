@@ -18,8 +18,8 @@ app.use(require('morgan')('combined'));
 
 // Routes
 const authRoutes = require('./routes/auth.route');
-const pharmacieRoutes = require('./routes/pharmacie/pharmacie.route'); 
-const adminRoutes = require('./routes/admin/admin.route'); 
+const pharmacieRoutes = require('./routes/pharmacie/pharmacie.route');
+const adminRoutes = require('./routes/admin/admin.route');
 
 
 // Serveur fichiers statiques pour les uploads [DÉSACTIVÉ - Sécurité]
@@ -27,8 +27,8 @@ const adminRoutes = require('./routes/admin/admin.route');
 
 
 // Définition des routes
-app.use('/pharmaPack/auth', authRoutes); 
+app.use('/pharmaPack/auth', authRoutes);
 
-app.use('/pharmaPack/pharmacie', pharmacieRoutes); 
+app.use('/pharmaPack/pharmacie', pharmacieRoutes);
 app.use('/pharmaPack/admin', adminRoutes);
 module.exports = app;
