@@ -1,4 +1,4 @@
-const { Produit, Categorie, User, Commande, CommandeDetails } = require('../../models');
+const { Produit, Categorie, User, Commande, CommandeDetails, Pharmacie } = require('../../models');
 const { Op } = require('sequelize');
 const sequelize = require('../../config/db');
 
