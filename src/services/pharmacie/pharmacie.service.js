@@ -1,243 +1,244 @@
-const { Produit, Categorie, Utilisateur, Boutique } = require('../../models');
-const { Op, col, where } = require('sequelize');
+const { Produit, Categorie, User, Commande, CommandeDetails } = require('../../models');
+const { Op } = require('sequelize');
+const sequelize = require('../../config/db');
 
-class AcheteurService {
+class PharmacieService {
 
-  // 1. Liste de tous les produits (publics, paginés)
-  static async listerTousProduits() {
-    const { count, rows } = await Produit.findAndCountAll({
-      where: {
-        quantite: { [Op.gt]: 0 } // Stock > 0
-      },
-      include: [
-        {
-          model: Categorie,
-          as: 'categorie',
-          attributes: ['id', 'nom']
+  // ===================== PRODUITS =====================
+
+  static async listerProduitsActif() {
+    try {
+      const produits = await Produit.findAll({
+        where: {
+          stock: { [Op.gt]: 0 },
+          statut: true
         },
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['id', 'nom', 'prenom', 'telephone'],
-          include: [
-            {
-              model: Boutique,
-              as: 'boutiques',
-              attributes: ['localisation'],
-              required: false
-            }
-          ]
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
-
-    return {
-      produits: rows
-    };
-  }
-
-  // 2. Rechercher par nom ou catégorie
-static async rechercherProduits(query) {
-
-  const { count, rows } = await Produit.findAndCountAll({
-    where: {
-      quantite: { [Op.gt]: 0 },
-      [Op.or]: [
-        { nom: { [Op.iLike]: `%${query}%` } },
-        { '$categorie.nom$': { [Op.iLike]: `%${query}%` } }
-      ]
-    },
-    include: [
-      {
-        model: Categorie,
-        as: 'categorie',
-        attributes: ['nom'],
-        required: false
-      },
-      {
-        model: Utilisateur,
-        as: 'vendeur',
-        attributes: ['id', 'nom', 'prenom', 'telephone'],
         include: [
-          { model: Boutique, as: 'boutiques', attributes: ['localisation'], required: false }
+          {
+            model: Categorie,
+            as: 'categorie',
+            attributes: ['id', 'nom']
+          }
         ]
+      });
+
+      return produits;
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // ===================== RECHERCHE =====================
+
+  static async rechercherProduits(query) {
+    try {
+      const { rows } = await Produit.findAndCountAll({
+        where: {
+          stock: { [Op.gt]: 0 }, // 🔥 correction (tu avais "quantite")
+          statut: true,
+          [Op.or]: [
+            { nom: { [Op.iLike]: `%${query}%` } },
+            { '$categorie.nom$': { [Op.iLike]: `%${query}%` } }
+          ]
+        },
+        include: [
+          {
+            model: Categorie,
+            as: 'categorie',
+            attributes: ['nom'],
+            required: false
+          }
+        ],
+        order: [['nom', 'ASC']],
+        distinct: true
+      });
+
+      return { produits: rows };
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // ===================== PRODUIT DETAIL =====================
+
+  static async getProduitById(id) {
+    try {
+      const produit = await Produit.findByPk(id, {
+        include: [
+          { model: Categorie, as: 'categorie', attributes: ['id', 'nom'] }
+        ]
+      });
+
+      if (!produit) throw new Error("Produit introuvable");
+
+      return produit;
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // ===================== COMMANDER =====================
+
+  static async commanderProduits(userId, pharmacieId, produits) {
+    const transaction = await sequelize.transaction();
+
+    try {
+      let total = 0;
+
+      for (const item of produits) {
+        const produit = await Produit.findByPk(item.produit_id);
+
+        if (!produit) throw new Error("Produit introuvable");
+
+        if (produit.stock < item.quantite) {
+          throw new Error(`Stock insuffisant pour ${produit.nom}`);
+        }
+
+        total += produit.prix * item.quantite;
       }
-    ],
-    order: [['nom', 'ASC']],
-    distinct: true
-  });
 
-  return {
-    produits: rows
-  };
+      const commande = await Commande.create({
+        pharmacie_id: pharmacieId,
+        montant_total: total,
+        created_by: userId
+      }, { transaction });
+
+      for (const item of produits) {
+        const produit = await Produit.findByPk(item.produit_id);
+
+        await CommandeDetails.create({
+          commande_id: commande.id,
+          produit_id: produit.id,
+          quantite: item.quantite,
+          prix_unitaire: produit.prix,
+          prix_total: produit.prix * item.quantite
+        }, { transaction });
+
+        produit.stock -= item.quantite;
+        await produit.save({ transaction });
+      }
+
+      await transaction.commit();
+
+      return { message: "Commande réussie", commande };
+
+    } catch (error) {
+      await transaction.rollback();
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // ===================== COMMANDES =====================
+
+  static async mesCommandesLivree(userId) {
+    try {
+      return await Commande.findAll({
+        where: { created_by: userId, statut: 'livree' },
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async mesCommandesEnAttente(userId) {
+    try {
+      return await Commande.findAll({
+        where: { created_by: userId, statut: 'en_attente' },
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async mesCommandesAnnulees(userId) {
+    try {
+      return await Commande.findAll({
+        where: { created_by: userId, statut: 'annulee' },
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // 🔥 correction : tu avais "etat" alors que ton modèle utilise "statut"
+  static async mesCommandesValidees(userId) {
+    try {
+      return await Commande.findAll({
+        where: { created_by: userId, statut: 'valider' }, // ou adapte selon logique
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async mesCommandesRejetees(userId) {
+    try {
+      return await Commande.findAll({
+        where: { created_by: userId, statut: 'rejeter' },
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async detailCommande(id) {
+    try {
+      const commande = await Commande.findByPk(id, {
+        include: [{ model: CommandeDetails, as: 'details' }]
+      });
+
+      if (!commande) throw new Error("Commande introuvable");
+
+      return commande;
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async annulerCommande(id) {
+    try {
+      const commande = await Commande.findByPk(id);
+
+      if (!commande) throw new Error("Commande introuvable");
+
+      if (commande.statut === 'livree') {
+        throw new Error("Impossible d'annuler une commande livrée");
+      }
+
+      commande.statut = 'annulee';
+      await commande.save();
+
+      return commande;
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
-  // 3. Filtrer par ville (boutique.localisation)
-  static async filtrerParVille(ville) {
-    const { rows } = await Produit.findAndCountAll({
-      where: {
-        quantite: { [Op.gt]: 0 }
-      },
-      include: [
-        {
-          model: Categorie,
-          as: 'categorie',
-          attributes: ['nom']
-        },
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['id', 'nom', 'prenom', 'telephone'],
-          required: true,
-          include: [
-            {
-              model: Boutique,
-              as: 'boutiques',
-              attributes: ['localisation'],
-              where: {
-                localisation: { [Op.iLike]: `%${ville}%` }
-              },
-              required: true
-            }
-          ]
-        }
-      ]
-    });
-
-    return {
-      produits: rows,
-      ville
-    };
-  }
-
-  // 4. Contact WhatsApp vendeur
-  static async contacterVendeurWhatsapp(produitId) {
-    const produit = await Produit.findByPk(produitId, {
-      include: [
-        {
-          model: Categorie,
-          as: 'categorie',
-          attributes: ['nom']
-        },
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['telephone', 'nom', 'prenom'],
-          include: [{
-            model: Boutique,
-            as: 'boutiques',
-            attributes: ['telephone', 'localisation']
-          }]
-        }
-      ]
-    });
-
-    if (!produit) {
-      throw new Error('Produit non trouvé');
-    }
-
-    // Priorité téléphone boutique → vendeur
-    let tel = produit.vendeur.boutiques?.[0]?.telephone || produit.vendeur.telephone;
-
-    if (!tel) {
-      throw new Error('Téléphone vendeur non disponible');
-    }
-
-    // Nettoyage numéro
-    tel = tel.replace(/[^0-9]/g, '');
-
-    // Ajouter indicatif Sénégal si absent
-    if (!tel.startsWith('221')) {
-      tel = '221' + tel;
-    }
-
-        // Message amélioré
-        const message = `
-          Bonjour ${produit.vendeur.nom  || ''} ${produit.vendeur.prenom  || ''},
-
-          Je suis intéressé par votre produit :
-
-          🛍️ Nom : ${produit.nom}
-          💰 Prix : ${produit.prix} FCFA
-          📦 Stock : ${produit.quantite}
-          🏷️ Catégorie : ${produit.categorie?.nom || 'Non définie'}
-          📍 Localisation : ${produit.vendeur.boutiques?.[0]?.localisation || 'Non précisée'}
-
-            ${produit.description || ''}
-
-          Merci de me donner plus d'informations.
-        `;
-
-    const text = encodeURIComponent(message);
-
-    return `https://wa.me/${tel}?text=${text}`;
-  }
-
-  // 4. Liste de toutes les boutiques
-  static async listerBoutiques() {
-    const boutiques = await Boutique.findAll({
-      attributes: ['id', 'nom', 'description', 'localisation', 'telephone', 'logo', 'heure_ouverture', 'heure_fermeture'],
-      include: [
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['id', 'nom', 'prenom', 'telephone']
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
- 
-    return { boutiques };
-  }
-
-  static async getProduitsByBoutique(boutiqueId) {
-    const boutique = await Boutique.findByPk(boutiqueId, {
-      attributes: ['id', 'nom', 'description', 'localisation', 'logo',
-                   'heure_ouverture', 'heure_fermeture'],
-      include: [
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['id', 'nom', 'prenom', 'telephone']
-        }
-      ]
-    });
- 
-    if (!boutique) {
-      throw new Error('Boutique introuvable');
-    }
- 
-    const { rows: produits } = await Produit.findAndCountAll({
-      where: { quantite: { [Op.gt]: 0 } },
-      include: [
-        {
-          model: Categorie,
-          as: 'categorie',
-          attributes: ['id', 'nom']
-        },
-        {
-          model: Utilisateur,
-          as: 'vendeur',
-          attributes: ['id', 'nom', 'prenom'],
-          required: true,
-          include: [
-            {
-              model: Boutique,
-              as: 'boutiques',
-              attributes: ['id', 'localisation'],
-              where: { id: boutiqueId },
-              required: true
-            }
-          ]
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
- 
-    return { boutique, produits };
-  }
-
-}
-
-module.exports = AcheteurService
+module.exports = PharmacieService;

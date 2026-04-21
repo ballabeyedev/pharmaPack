@@ -1,44 +1,61 @@
 const express = require('express');
 const router = express.Router();
-const AcheteurController = require('../../controllers/pharmacie/pharmacie.controller');
 
+const PharmacieController = require('../../controllers/pharmacie/pharmacie.controller');
 const authMiddleware = require('../../middlewares/auth.middleware');
 
 router.use(authMiddleware);
 
-// Routes publiques pour acheteurs
-router.get(
-    '/liste-produits', 
-    AcheteurController.listerProduits
-);
 
-//Recherche produits (nom ou catégorie)
 router.get(
-    '/rechercher-produit-categorie', 
-    AcheteurController.rechercherProduits
-);
-
-//Filtrer produits par ville
-router.get(
-    '/filtrer-produit-ville', 
-    AcheteurController.filtrerParVille
+    '/listear-produits',
+    PharmacieController.listerProduits
 );
 
 router.get(
-    '/liste-boutiques',              
-    AcheteurController.listerBoutiques
+    '/recherche-produit',
+    PharmacieController.rechercherProduits
 );
 
-// 4. Contacter vendeur via WhatsApp
 router.get(
-    '/contacter-vendeur-par-whatsapp/:id', 
-    AcheteurController.contacterVendeurWhatsapp
+    '/detail-produit/:id',
+    PharmacieController.getProduit
 );
 
-// Lister les produits d'une boutique
+router.post(
+    '/passer-commande',
+    PharmacieController.commander
+);
+
 router.get(
-  '/liste-produit-par-boutique/:boutiqueId',
-  AcheteurController.getProduitsByBoutique
+    '/commandes-livrees',
+    PharmacieController.commandesLivrees
+);
+router.get(
+    '/commandes-en-attente',
+    PharmacieController.commandesEnAttente
+);
+router.get(
+    '/commandes-annulees',
+    PharmacieController.commandesAnnulees
+);
+router.get(
+    '/commandes-validees',
+    PharmacieController.commandesValidees
+);
+router.get(
+    '/commandes-rejetees',
+    PharmacieController.commandesRejetees
+);
+
+router.get(
+    '/detailler-commande/:id',
+    PharmacieController.detailCommande
+);
+
+router.patch(
+    '/annuler-commande/:id',
+    PharmacieController.annulerCommande
 );
 
 

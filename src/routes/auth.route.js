@@ -22,5 +22,17 @@ router.post('/forgot-password', authController.passwordOublie);
 
 router.post('/reset-password/:token', authController.resetPassword);
 
+router.put(
+  '/changer-informations',
+  auth,
+  upload.single('photoProfil'),
+  authController.changerInformations
+);
+
+router.put(
+  '/changer-password',
+  auth,
+  authController.changerPassword
+);
 
 module.exports = router;

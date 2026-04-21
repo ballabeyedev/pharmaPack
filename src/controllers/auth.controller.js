@@ -147,3 +147,40 @@ exports.resetPassword = async (req, res) => {
     });
   }
 };
+
+exports.changerInformations = async (req, res) => {
+  try {
+    const { nom, prenom, telephone, adresse } = req.body;
+    const photoProfil = req.file;
+
+    const result = await AuthService.changerInformations(req.user, {
+      nom,
+      prenom,
+      telephone,
+      adresse,
+      photoProfil
+    });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur changement informations:", error);
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+exports.changerPassword = async (req, res) => {
+  try {
+    const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+
+    const result = await AuthService.changerPassword(
+      req.user,
+      ancienMotDePasse,
+      nouveauMotDePasse
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur changement password:", error);
+    return res.status(400).json({ error: error.message });
+  }
+};
