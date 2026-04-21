@@ -50,9 +50,23 @@ exports.commander = async (req, res) => {
       return res.status(400).json({ message: "Aucun produit fourni" });
     }
 
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Utilisateur non authentifié" });
+    }
+
+    const pharmacie = await Pharmacie.findOne({
+      where: { pharmacienId: req.user.id }
+    });
+
+    if (!pharmacie) {
+      return res.status(404).json({
+        message: "Pharmacie introuvable"
+      });
+    }
+
     const commande = await PharmacieService.commanderProduits(
-      req.user.id,           // 🔥 récupéré du middleware auth
-      req.user.pharmacieId,  // 🔥 idem
+      req.user.id,
+      pharmacie.id,
       produits
     );
 
