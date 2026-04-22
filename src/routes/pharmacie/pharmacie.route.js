@@ -31,6 +31,14 @@ router.get(
     '/commandes-livrees',
     PharmacieController.commandesLivrees
 );
+
+
+router.get(
+    '/nombre-de-commandes-livrees',
+    PharmacieController.nombreCommandeLivree
+);
+
+
 router.get(
     '/commandes-en-attente',
     PharmacieController.commandesEnAttente
@@ -45,8 +53,6 @@ router.get(
     '/commandes-annulees',
     PharmacieController.commandesAnnulees
 );
-
-
 
 router.get(
     '/nombre-de-commandes-annulees',
