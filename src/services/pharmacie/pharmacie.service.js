@@ -157,10 +157,23 @@ class PharmacieService {
     }
   }
 
+  //nombre de commande livree
+
+  static async nombreCommandeLivree(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId, statut: 'livree' }
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   static async mesCommandesEnAttente(userId) {
     try {
       return await Commande.findAll({
-        where: { created_by: userId, statut: 'en_attente' },
+        where: { pharmacie_id: userId, statut: 'en_attente' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -170,13 +183,38 @@ class PharmacieService {
     }
   }
 
+  //nombre de commande en attente
+  static async nombreCommandeEnAttente(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId, statut: 'en_attente' }
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+
   static async mesCommandesAnnulees(userId) {
     try {
       return await Commande.findAll({
-        where: { created_by: userId, statut: 'annulee' },
+        where: { pharmacie_id: userId, statut: 'annulee' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  //nombre de commande annulee
+  static async nombreCommandeAnnulee(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId, statut: 'annulee' }
+      });
     } catch (error) {
       console.error(error);
       throw error;
@@ -187,7 +225,7 @@ class PharmacieService {
   static async mesCommandesValidees(userId) {
     try {
       return await Commande.findAll({
-        where: { created_by: userId, statut: 'valider' }, // ou adapte selon logique
+        where: { pharmacie_id: userId, statut: 'valider' }, // ou adapte selon logique
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -197,13 +235,49 @@ class PharmacieService {
     }
   }
 
+  //nombre de commande valider
+  static async nombreCommandeValidees(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId, statut: 'valider' }
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   static async mesCommandesRejetees(userId) {
     try {
       return await Commande.findAll({
-        where: { created_by: userId, statut: 'rejeter' },
+        where: { pharmacie_id: userId, statut: 'rejeter' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  //nombre de commande rejeter
+  static async nombreCommandeRejetees(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId, statut: 'rejeter' }
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  //nombre total de commande
+  static async nombreTotalDeCommandes(userId) {
+    try {
+      return await Commande.count({
+        where: { pharmacie_id: userId }
+      });
     } catch (error) {
       console.error(error);
       throw error;

@@ -35,17 +35,45 @@ router.get(
     '/commandes-en-attente',
     PharmacieController.commandesEnAttente
 );
+
+router.get(
+    '/nombre-de-commandes-en-attente',
+    PharmacieController.nombreCommandeEnAttente
+);
+
 router.get(
     '/commandes-annulees',
     PharmacieController.commandesAnnulees
+);
+
+
+
+router.get(
+    '/nombre-de-commandes-annulees',
+    PharmacieController.nombreCommandeAnnulee
 );
 router.get(
     '/commandes-validees',
     PharmacieController.commandesValidees
 );
+
+router.get(
+    '/nombre-de-commandes-validees',
+    PharmacieController.nombreCommandeValidees
+);
 router.get(
     '/commandes-rejetees',
     PharmacieController.commandesRejetees
+);
+
+router.get(
+    '/nombre-de-commandes-rejetees',
+    PharmacieController.nombreCommandeRejetees
+);
+
+router.get(
+    '/nombre-de-commandes-totale',
+    PharmacieController.nombreTotalDeCommandes
 );
 
 router.get(

@@ -68,10 +68,20 @@ exports.commander = async (req, res) => {
 
 // ===================== MES COMMANDES =====================
 
-// 🔹 GET /mes-commandes/livrees
 exports.commandesLivrees = async (req, res) => {
   try {
     const data = await PharmacieService.mesCommandesLivree(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//nombre de commande livree
+
+exports.nombreCommandeLivree = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreCommandeLivree(req.user.id);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -88,10 +98,32 @@ exports.commandesEnAttente = async (req, res) => {
   }
 };
 
+//nombre de commande en attente
+
+exports.nombreCommandeEnAttente = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreCommandeEnAttente(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // 🔹 GET /mes-commandes/annulees
 exports.commandesAnnulees = async (req, res) => {
   try {
     const data = await PharmacieService.mesCommandesAnnulees(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//nombre de commande annulee
+
+exports.nombreCommandeAnnulee = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreCommandeAnnulee(req.user.id);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -108,10 +140,43 @@ exports.commandesValidees = async (req, res) => {
   }
 };
 
+//nombre de commande valider
+
+exports.nombreCommandeValidees = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreCommandeValidees(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // 🔹 GET /mes-commandes/rejetees
 exports.commandesRejetees = async (req, res) => {
   try {
     const data = await PharmacieService.mesCommandesRejetees(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//nombre de commande rejeter
+
+exports.nombreCommandeRejetees = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreCommandeRejetees(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// nombre total de commande
+
+exports.nombreTotalDeCommandes = async (req, res) => {
+  try {
+    const data = await PharmacieService.nombreTotalDeCommandes(req.user.id);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
