@@ -206,3 +206,13 @@ exports.annulerCommande = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+//historique des 10 derniers commandes
+exports.historiqueCommandes = async (req, res) => {
+  try {
+    const data = await PharmacieService.historiqueCommandes(req.user.id);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

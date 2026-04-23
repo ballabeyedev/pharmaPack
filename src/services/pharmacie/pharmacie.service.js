@@ -320,6 +320,21 @@ class PharmacieService {
       throw error;
     }
   }
+
+  //historique des 10 derniers comamndes
+  static async historiqueCommandes(userId) {
+    try {
+      return await Commande.findAll({
+        where: { pharmacie_id: userId },
+        include: [{ model: CommandeDetails, as: 'details' }],
+        order: [['createdAt', 'DESC']],
+        limit: 10
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
 module.exports = PharmacieService;

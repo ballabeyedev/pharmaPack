@@ -92,5 +92,10 @@ router.patch(
     PharmacieController.annulerCommande
 );
 
+router.get(
+    '/historique-commandes',
+    PharmacieController.historiqueCommandes
+);
+
 
 module.exports = router;
