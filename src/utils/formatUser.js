@@ -10,8 +10,8 @@ const formatUser = (utilisateur) => {
     role: utilisateur.role,
   };
 
-  if (utilisateur.role === 'Vendeur' && utilisateur.boutiques) {
-    userFormatted.boutiques = utilisateur.boutiques;
+  if (utilisateur.role === 'pharmacie' && utilisateur.pharmacies) {
+    userFormatted.pharmacies = utilisateur.pharmacies;
   }
 
   return userFormatted;
