@@ -115,6 +115,13 @@ class AuthService {
 
     const utilisateur = await User.findOne({
       where: isEmail ? { email: identifiant } : { telephone: identifiant },
+      include: [
+        {
+          model: Pharmacie,
+          as: 'pharmacies',
+          attributes: ['id', 'nom_pharmacie', 'email_pharmacie', 'telephone_pharmacie', 'ville_pharmacie', 'adresse_pharmacie', 'logo']
+        }
+      ]
     });
 
     // ✅ Message volontairement vague pour la sécurité
