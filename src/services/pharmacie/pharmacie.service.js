@@ -146,8 +146,15 @@ class PharmacieService {
 
   static async mesCommandesLivree(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.findAll({
-        where: { created_by: userId, statut: 'livree' },
+        where: { pharmacie_id: pharmacie.id, statut: 'livree' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -161,8 +168,15 @@ class PharmacieService {
 
   static async nombreCommandeLivree(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.count({
-        where: { pharmacie_id: userId, statut: 'livree' }
+        where: { pharmacie_id: pharmacie.id, statut: 'livree' }
       });
     } catch (error) {
       console.error(error);
@@ -172,8 +186,15 @@ class PharmacieService {
 
   static async mesCommandesEnAttente(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.findAll({
-        where: { pharmacie_id: userId, statut: 'en_attente' },
+        where: { pharmacie_id: pharmacie.id, statut: 'en_attente' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -186,8 +207,15 @@ class PharmacieService {
   //nombre de commande en attente
   static async nombreCommandeEnAttente(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.count({
-        where: { pharmacie_id: userId, statut: 'en_attente' }
+        where: { pharmacie_id: pharmacie.id, statut: 'en_attente' }
       });
     } catch (error) {
       console.error(error);
@@ -198,8 +226,15 @@ class PharmacieService {
 
   static async mesCommandesAnnulees(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.findAll({
-        where: { pharmacie_id: userId, statut: 'annulee' },
+        where: { pharmacie_id: pharmacie.id, statut: 'annulee' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -212,8 +247,15 @@ class PharmacieService {
   //nombre de commande annulee
   static async nombreCommandeAnnulee(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.count({
-        where: { pharmacie_id: userId, statut: 'annulee' }
+        where: { pharmacie_id: pharmacie.id, statut: 'annulee' }
       });
     } catch (error) {
       console.error(error);
@@ -224,8 +266,15 @@ class PharmacieService {
   // 🔥 correction : tu avais "etat" alors que ton modèle utilise "statut"
   static async mesCommandesValidees(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.findAll({
-        where: { pharmacie_id: userId, statut: 'valider' }, // ou adapte selon logique
+        where: { pharmacie_id: pharmacie.id, statut: 'valider' }, // ou adapte selon logique
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -238,8 +287,15 @@ class PharmacieService {
   //nombre de commande valider
   static async nombreCommandeValidees(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.count({
-        where: { pharmacie_id: userId, statut: 'valider' }
+        where: { pharmacie_id: pharmacie.id, statut: 'valider' }
       });
     } catch (error) {
       console.error(error);
@@ -249,8 +305,15 @@ class PharmacieService {
 
   static async mesCommandesRejetees(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.findAll({
-        where: { pharmacie_id: userId, statut: 'rejeter' },
+        where: { pharmacie_id: pharmacie.id, statut: 'rejeter' },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -263,8 +326,15 @@ class PharmacieService {
   //nombre de commande rejeter
   static async nombreCommandeRejetees(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       return await Commande.count({
-        where: { pharmacie_id: userId, statut: 'rejeter' }
+        where: { pharmacie_id: pharmacie.id, statut: 'rejeter' }
       });
     } catch (error) {
       console.error(error);
@@ -275,9 +345,18 @@ class PharmacieService {
   //nombre total de commande
   static async nombreTotalDeCommandes(userId) {
     try {
-      return await Commande.count({
-        where: { pharmacie_id: userId }
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
       });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
+
+      return await Commande.count({
+        where: { pharmacie_id: pharmacie.id }
+      });
+
     } catch (error) {
       console.error(error);
       throw error;
@@ -302,6 +381,13 @@ class PharmacieService {
 
   static async annulerCommande(id) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       const commande = await Commande.findByPk(id);
 
       if (!commande) throw new Error("Commande introuvable");
@@ -324,12 +410,21 @@ class PharmacieService {
   //historique des 10 derniers comamndes
   static async historiqueCommandes(userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
+
       return await Commande.findAll({
-        where: { pharmacie_id: userId },
+        where: { pharmacie_id: pharmacie.id },
         include: [{ model: CommandeDetails, as: 'details' }],
         order: [['createdAt', 'DESC']],
         limit: 10
       });
+
     } catch (error) {
       console.error(error);
       throw error;
