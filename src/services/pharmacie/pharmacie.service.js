@@ -454,6 +454,7 @@ class PharmacieService {
             include: [
               {
                 model: Produit,
+                as: 'produit',
                 attributes: ['nom']
               }
             ]
