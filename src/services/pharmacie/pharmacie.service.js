@@ -1,8 +1,31 @@
 const { Produit, Categorie, User, Commande, CommandeDetails, Pharmacie } = require('../../models');
 const { Op } = require('sequelize');
 const sequelize = require('../../config/db');
+const crypto = require("crypto");
 
 class PharmacieService {
+
+  static async generateReference(transaction) {
+    const date = new Date();
+    const YYYY = date.getFullYear();
+    const MM = String(date.getMonth() + 1).padStart(2, '0');
+    const DD = String(date.getDate()).padStart(2, '0');
+
+    const random = crypto.randomBytes(3).toString('hex').toUpperCase();
+
+    const reference = `CMD-${YYYY}${MM}${DD}-${random}`;
+
+    const exists = await Commande.findOne({
+      where: { reference },
+      transaction
+    });
+
+    if (exists) {
+      return await this.generateReference(transaction);
+    }
+
+    return reference;
+  }
 
   // ===================== PRODUITS =====================
 
@@ -111,10 +134,13 @@ class PharmacieService {
         total += produit.prix * item.quantite;
       }
 
+      const reference = await this.generateReference(transaction);
+
       const commande = await Commande.create({
         pharmacie_id: pharmacie.id,
         montant_total: total,
-        created_by: userId
+        created_by: userId,
+        reference: reference
       }, { transaction });
 
       for (const item of produits) {
