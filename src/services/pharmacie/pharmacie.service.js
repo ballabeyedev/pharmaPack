@@ -450,7 +450,13 @@ class PharmacieService {
           {
             model: CommandeDetails,
             as: 'details',
-            attributes: ['produit_id', 'quantite', 'prix_unitaire', 'prix_total']
+            attributes: ['quantite', 'prix_unitaire', 'prix_total'],
+            include: [
+              {
+                model: Produit,
+                attributes: ['nom']
+              }
+            ]
           }
         ],
         order: [['createdAt', 'DESC']],
