@@ -446,7 +446,13 @@ class PharmacieService {
 
       return await Commande.findAll({
         where: { pharmacie_id: pharmacie.id },
-        include: [{ model: CommandeDetails, as: 'details' }],
+        include: [
+          {
+            model: CommandeDetails,
+            as: 'details',
+            attributes: ['produit_id', 'quantite', 'prix_unitaire', 'prix_total']
+          }
+        ],
         order: [['createdAt', 'DESC']],
         limit: 10
       });
