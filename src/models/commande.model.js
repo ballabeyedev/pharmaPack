@@ -10,6 +10,13 @@ const Commande = sequelize.define('Commande', {
     primaryKey: true,
   },
 
+  reference: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    defaultValue: 'CMD-00000000000000000000000000000000'
+  },
+
   pharmacie_id: {
     type: DataTypes.UUID,
     allowNull: false,
