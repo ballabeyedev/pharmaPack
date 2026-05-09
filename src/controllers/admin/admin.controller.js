@@ -339,7 +339,14 @@ const supprimerPermission = handle(async (req, res) => {
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
 const getDashboardStats = handle(async (req, res) => {
-  return ok(res, await AdminService.getDashboardStats());
+  const adminId = req.user?.id;
+  const stats = await AdminService.getDashboardStats(adminId);
+
+  if (!stats.success) {
+    return notFound(res, stats.message);
+  }
+
+  return ok(res, stats);
 });
 
 const hello = handle(async (req, res) => {

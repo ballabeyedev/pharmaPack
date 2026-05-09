@@ -849,6 +849,12 @@ class AdminService {
   static async getDashboardStats(adminId) {
     try {
       const admin = await User.findByPk(adminId);
+      if (!admin) {
+        return {
+          success: false,
+          message: "Utilisateur introuvable"
+        };
+      }
       if (admin.role !== 'admin') {
         return {
           success: false,
