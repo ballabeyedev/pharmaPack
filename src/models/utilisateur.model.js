@@ -40,12 +40,12 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  
+
   photo_profil: {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  
+
   role: {
     type: DataTypes.ENUM('admin', 'pharmacie'),
     defaultValue: 'pharmacie',
@@ -57,8 +57,9 @@ const User = sequelize.define('User', {
     defaultValue: 'en_attente',
   },
 
-  aDejaConnecter:{
-    type: DataTypes.BOOLEAN
+  aDejaConnecter: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
 
   created_by: {
@@ -94,7 +95,7 @@ const User = sequelize.define('User', {
 }, {
   tableName: 'utilisateurs',
   timestamps: true,
-  paranoid: true, 
+  paranoid: true,
   underscored: true
 });
 

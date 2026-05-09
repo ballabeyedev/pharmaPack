@@ -1,6 +1,6 @@
 // controllers/admin/admin.controller.js
 const AdminService = require('../../services/admin/admin.service');
-const formatUser   = require('../../utils/formatUser');
+const formatUser = require('../../utils/formatUser');
 const { uploadImage } = require('../../middlewares/uploadService');
 
 /* ═══════════════════════════════════════════════════════
@@ -20,20 +20,26 @@ const handle = (fn) => async (req, res) => {
 const notFound = (res, message) => res.status(404).json({ message });
 
 /* ─── Réponse succès standard ─── */
-const ok     = (res, data, status = 200) => res.status(status).json(data);
-const created = (res, data)              => res.status(201).json(data);
+const ok = (res, data, status = 200) => res.status(status).json(data);
+const created = (res, data) => res.status(201).json(data);
 
 /* ═══════════════════════════════════════════════════════
    UTILISATEURS
 ═══════════════════════════════════════════════════════ */
 const activerUtilisateur = handle(async (req, res) => {
-  const result = await AdminService.activerUtilisateur(req.params.id);
+  const result = await AdminService.activerUtilisateur(
+    req.params.id,
+    req.user.id
+  );
   if (!result.utilisateur) return notFound(res, result.message);
   return ok(res, { message: result.message, utilisateur: formatUser(result.utilisateur) });
 });
 
 const desactiverUtilisateur = handle(async (req, res) => {
-  const result = await AdminService.desactiverUtilisateur(req.params.id);
+  const result = await AdminService.desactiverUtilisateur(
+    req.params.id,
+    req.user.id
+  );
   if (!result.utilisateur) return notFound(res, result.message);
   return ok(res, { message: result.message, utilisateur: formatUser(result.utilisateur) });
 });
@@ -42,23 +48,32 @@ const desactiverUtilisateur = handle(async (req, res) => {
    PRODUITS
 ═══════════════════════════════════════════════════════ */
 const listerProduit = handle(async (req, res) => {
-  return ok(res, await AdminService.listerProduit());
+  return ok(res, await AdminService.listerProduit(
+    req.user.id
+  ));
 });
 
 const ajouterProduit = handle(async (req, res) => {
-  const imageUrl = req.file ? await uploadImage(req.file.buffer) : null;
-  const result   = await AdminService.ajouterProduit({ ...req.body, image: imageUrl }, req.user.id);
+  const imageUrl = req.file ? await uploadImage(req.file.buffer, 'produits/') : null;
+  const result = await AdminService.ajouterProduit({ ...req.body, image: imageUrl }, req.user.id);
   return created(res, result);
 });
 
 const modifierProduit = handle(async (req, res) => {
-  const result = await AdminService.modifierProduit(req.params.id, req.body, req.user.id);
+  const result = await AdminService.modifierProduit(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.produit) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const supprimerProduit = handle(async (req, res) => {
-  const result = await AdminService.supprimerProduit(req.params.id, req.user.id);
+  const result = await AdminService.supprimerProduit(
+    req.params.id,
+    req.user.id
+  );
   if (result.message === 'Produit non trouvé') return notFound(res, result.message);
   return ok(res, result);
 });
@@ -67,23 +82,32 @@ const supprimerProduit = handle(async (req, res) => {
    COMMANDES
 ═══════════════════════════════════════════════════════ */
 const listeCommandes = handle(async (req, res) => {
-  return ok(res, await AdminService.listeCommandes());
+  return ok(res, await AdminService.listeCommandes(req.user.id));
 });
 
 const validerCommande = handle(async (req, res) => {
-  const result = await AdminService.validerCommande(req.params.id, req.user.id);
+  const result = await AdminService.validerCommande(
+    req.params.id,
+    req.user.id
+  );
   if (!result.commande) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const rejeterCommande = handle(async (req, res) => {
-  const result = await AdminService.rejeterCommande(req.params.id, req.user.id);
+  const result = await AdminService.rejeterCommande(
+    req.params.id,
+    req.user.id
+  );
   if (!result.commande) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const livrerCommande = handle(async (req, res) => {
-  const result = await AdminService.livrerCommande(req.params.id, req.user.id);
+  const result = await AdminService.livrerCommande(
+    req.params.id,
+    req.user.id
+  );
   if (!result.commande) return notFound(res, result.message);
   return ok(res, result);
 });
@@ -92,25 +116,36 @@ const livrerCommande = handle(async (req, res) => {
    PHARMACIES
 ═══════════════════════════════════════════════════════ */
 const listePharmacies = handle(async (req, res) => {
-  return ok(res, await AdminService.listePharmacies());
+  return ok(res, await AdminService.listePharmacies(req.user.id));
 });
 
 const detailPharmacies = handle(async (req, res) => {
-  return ok(res, await AdminService.getPharmacieDetails(req.params.id));
+  return ok(res, await AdminService.getPharmacieDetails(
+    req.params.id,
+    req.user.id
+  ));
 });
 
 const listePharmaciesEnAttente = handle(async (req, res) => {
-  return ok(res, await AdminService.listePharmaciesEnAttente());
+  return ok(res, await AdminService.listePharmaciesEnAttente(
+    req.user.id
+  ));
 });
 
 const validerInscriptionPharmacies = handle(async (req, res) => {
-  const result = await AdminService.validerInscriptionPharmacies(req.params.id, req.user.id);
+  const result = await AdminService.validerInscriptionPharmacies(
+    req.params.id,
+    req.user.id
+  );
   if (!result.utilisateur) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const rejeterInscriptionPharmacies = handle(async (req, res) => {
-  const result = await AdminService.rejeterInscriptionPharmacies(req.params.id, req.user.id);
+  const result = await AdminService.rejeterInscriptionPharmacies(
+    req.params.id,
+    req.user.id
+  );
   if (!result.utilisateur) return notFound(res, result.message);
   return ok(res, result);
 });
@@ -119,22 +154,36 @@ const rejeterInscriptionPharmacies = handle(async (req, res) => {
    AVANTAGES
 ═══════════════════════════════════════════════════════ */
 const listeAvantages = handle(async (req, res) => {
-  return ok(res, await AdminService.listeAvantages());
+  return ok(res, await AdminService.listeAvantages(
+    req.user.id
+  ));
 });
 
 const ajouterAvantage = handle(async (req, res) => {
   const { pharmacieId, type, montant } = req.body;
-  return created(res, await AdminService.ajouterAvantage(pharmacieId, type, montant, req.user.id));
+  return created(res, await AdminService.ajouterAvantage(
+    pharmacieId,
+    type,
+    montant,
+    req.user.id
+  ));
 });
 
 const modifierAvantage = handle(async (req, res) => {
-  const result = await AdminService.modifierAvantage(req.params.id, req.body, req.user.id);
+  const result = await AdminService.modifierAvantage(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.avantage) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const supprimerAvantage = handle(async (req, res) => {
-  const result = await AdminService.supprimerAvantage(req.params.id, req.user.id);
+  const result = await AdminService.supprimerAvantage(
+    req.params.id,
+    req.user.id
+  );
   if (result.message === 'Avantage non trouvé') return notFound(res, result.message);
   return ok(res, result);
 });
@@ -143,21 +192,31 @@ const supprimerAvantage = handle(async (req, res) => {
    CATÉGORIES
 ═══════════════════════════════════════════════════════ */
 const listeCategories = handle(async (req, res) => {
-  return ok(res, await AdminService.listeCategories());
+  return ok(res, await AdminService.listeCategories(req.user.id));
 });
 
 const ajouterCategorie = handle(async (req, res) => {
-  return created(res, await AdminService.ajouterCategorie(req.body, req.user.id));
+  return created(res, await AdminService.ajouterCategorie(
+    req.body,
+    req.user.id
+  ));
 });
 
 const modifierCategorie = handle(async (req, res) => {
-  const result = await AdminService.modifierCategorie(req.params.id, req.body, req.user.id);
+  const result = await AdminService.modifierCategorie(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.categorie) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const supprimerCategorie = handle(async (req, res) => {
-  const result = await AdminService.supprimerCategorie(req.params.id, req.user.id);
+  const result = await AdminService.supprimerCategorie(
+    req.params.id,
+    req.user.id
+  );
   if (result.message === 'Catégorie non trouvée') return notFound(res, result.message);
   return ok(res, result);
 });
@@ -166,21 +225,31 @@ const supprimerCategorie = handle(async (req, res) => {
    NIVEAUX
 ═══════════════════════════════════════════════════════ */
 const listeNiveau = handle(async (req, res) => {
-  return ok(res, await AdminService.listeNiveau());
+  return ok(res, await AdminService.listeNiveau(req.user.id));
 });
 
 const ajouterNiveau = handle(async (req, res) => {
-  return created(res, await AdminService.ajouterNiveau(req.body, req.user.id));
+  return created(res, await AdminService.ajouterNiveau(
+    req.body,
+    req.user.id
+  ));
 });
 
 const modifierNiveau = handle(async (req, res) => {
-  const result = await AdminService.modifierNiveau(req.params.id, req.body, req.user.id);
+  const result = await AdminService.modifierNiveau(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.niveau) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const supprimerNiveau = handle(async (req, res) => {
-  const result = await AdminService.supprimerNiveau(req.params.id, req.user.id);
+  const result = await AdminService.supprimerNiveau(
+    req.params.id,
+    req.user.id
+  );
   if (result.message === 'Niveau non trouvée') return notFound(res, result.message);
   return ok(res, result);
 });
@@ -189,29 +258,44 @@ const supprimerNiveau = handle(async (req, res) => {
    ADMINS
 ═══════════════════════════════════════════════════════ */
 const listeAdmins = handle(async (req, res) => {
-  return ok(res, await AdminService.listeAdmins());
+  return ok(res, await AdminService.listeAdmins(
+    req.user.id
+  ));
 });
 
 const creerAdmin = handle(async (req, res) => {
-  const result = await AdminService.ajoutAdmin(req.body);
+  const result = await AdminService.ajoutAdmin(
+    req.body,
+    req.user.id
+  );
   if (!result.success) return res.status(400).json({ message: result.message });
   return created(res, result);
 });
 
 const modifierAdmin = handle(async (req, res) => {
-  const result = await AdminService.modifierAdmin(req.params.id, req.body);
+  const result = await AdminService.modifierAdmin(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.success) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const desactiverAdmin = handle(async (req, res) => {
-  const result = await AdminService.desactiverAdmin(req.params.id);
+  const result = await AdminService.desactiverAdmin(
+    req.params.id,
+    req.user.id
+  );
   if (!result.success) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const activerAdmin = handle(async (req, res) => {
-  const result = await AdminService.activerAdmin(req.params.id);
+  const result = await AdminService.activerAdmin(
+    req.params.id,
+    req.user.id
+  );
   if (!result.success) return notFound(res, result.message);
   return ok(res, result);
 });
@@ -224,19 +308,29 @@ const listePermissions = handle(async (req, res) => {
 });
 
 const ajouterPermission = handle(async (req, res) => {
-  const result = await AdminService.ajouterPermission(req.body);
+  const result = await AdminService.ajouterPermission(
+    req.body,
+    req.user.id
+  );
   if (!result.success) return res.status(400).json({ message: result.message });
   return created(res, result);
 });
 
 const modifierPermission = handle(async (req, res) => {
-  const result = await AdminService.modifierPermission(req.params.id, req.body);
+  const result = await AdminService.modifierPermission(
+    req.params.id,
+    req.body,
+    req.user.id
+  );
   if (!result.success) return notFound(res, result.message);
   return ok(res, result);
 });
 
 const supprimerPermission = handle(async (req, res) => {
-  const result = await AdminService.supprimerPermission(req.params.id);
+  const result = await AdminService.supprimerPermission(
+    req.params.id,
+    req.user.id
+  );
   if (!result.success) return notFound(res, result.message);
   return ok(res, result);
 });

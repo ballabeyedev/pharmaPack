@@ -389,9 +389,17 @@ class PharmacieService {
     }
   }
 
-  static async detailCommande(id) {
+  static async detailCommande(id, userId) {
     try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        throw new Error("Pharmacie introuvable");
+      }
       const commande = await Commande.findByPk(id, {
+        where: { pharmacie_id: pharmacie.id },
         include: [{ model: CommandeDetails, as: 'details' }]
       });
 
@@ -405,7 +413,7 @@ class PharmacieService {
     }
   }
 
-  static async annulerCommande(id) {
+  static async annulerCommande(id, userId) {
     try {
       const pharmacie = await Pharmacie.findOne({
         where: { pharmacienId: userId }
@@ -414,15 +422,19 @@ class PharmacieService {
       if (!pharmacie) {
         throw new Error("Pharmacie introuvable");
       }
+
       const commande = await Commande.findByPk(id);
 
-      if (!commande) throw new Error("Commande introuvable");
+      if (!commande) {
+        throw new Error("Commande introuvable");
+      }
 
       if (commande.statut === 'livree') {
         throw new Error("Impossible d'annuler une commande livrée");
       }
 
       commande.statut = 'annulee';
+
       await commande.save();
 
       return commande;

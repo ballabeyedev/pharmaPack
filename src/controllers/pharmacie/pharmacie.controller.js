@@ -200,7 +200,10 @@ exports.detailCommande = async (req, res) => {
 // 🔹 PATCH /commandes/:id/annuler
 exports.annulerCommande = async (req, res) => {
   try {
-    const commande = await PharmacieService.annulerCommande(req.params.id);
+    const commande = await PharmacieService.annulerCommande(
+      req.params.id,
+      req.user.id
+    );
     res.status(200).json(commande);
   } catch (error) {
     res.status(400).json({ message: error.message });
