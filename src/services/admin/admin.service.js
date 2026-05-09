@@ -879,14 +879,29 @@ class AdminService {
         }]
       });
 
-      // 🔹 Commandes validées
-      const commandesValidees = await Commande.count({
-        where: { statut: 'validee' }
-      });
-
       // 🔹 Commandes en attente
       const commandesEnAttente = await Commande.count({
         where: { statut: 'en_attente' }
+      });
+
+      // 🔹 Commandes validées
+      const commandesValidees = await Commande.count({
+        where: { statut: 'valider' }
+      });
+
+      // 🔹 commande rejeter
+      const commandesRejeter = await Commande.count({
+        where: { statut: 'rejeter' }
+      });
+
+      // 🔹 commande annuler
+      const commandesAnnuler = await Commande.count({
+        where: { statut: 'annulee' }
+      });
+
+      // commande livree
+      const commandesLivree = await Commande.count({
+        where: { statut: 'livree' }
       });
 
       // 🔹 Nombre total de produits
@@ -899,6 +914,9 @@ class AdminService {
           pharmaciesEnAttente,
           commandesValidees,
           commandesEnAttente,
+          commandesRejeter,
+          commandesAnnuler,
+          commandesLivree,
           totalProduits
         }
       };
