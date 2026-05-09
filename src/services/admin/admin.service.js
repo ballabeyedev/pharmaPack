@@ -908,6 +908,7 @@ class AdminService {
       const totalProduits = await Produit.count();
 
       return {
+        success: true,
         message: "Statistiques du dashboard",
         stats: {
           pharmaciesActives,
