@@ -1,6 +1,8 @@
 require('dotenv').config();
 const sequelize = require('./config/db');
 const app = require('./app');
+const seedAdmin = require('./seeds/createAdmin');
+
 
 // Modèles
 const User = require('./models/utilisateur.model');
@@ -10,6 +12,8 @@ const User = require('./models/utilisateur.model');
     // Synchronisation DB
     await sequelize.sync({ alter: true });
     console.log('✅ Base synchronisée avec succès');
+
+    await seedAdmin();
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, '0.0.0.0', () => {
