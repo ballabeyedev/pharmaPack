@@ -49,6 +49,11 @@ const Commande = sequelize.define('Commande', {
     defaultValue: 'livraison'
   },
 
+  motif_annulation: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+
   created_by: {
     type: DataTypes.UUID,
     allowNull: true

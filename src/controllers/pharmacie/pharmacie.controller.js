@@ -1,221 +1,162 @@
 const PharmacieService = require('../../services/pharmacie/pharmacie.service');
 
+/* ═══════════════════════════════════════════════════════
+   WRAPPER GÉNÉRIQUE
+═══════════════════════════════════════════════════════ */
+const handle = (fn) => async (req, res) => {
+  try {
+    await fn(req, res);
+  } catch (error) {
+    console.error(`[PharmacieController] ${fn.name} :`, error.message);
+    return res.status(500).json({
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+
+/* ─── Helpers réponse ─── */
+const ok = (res, data, status = 200) => res.status(status).json(data);
+const created = (res, data) => res.status(201).json(data);
+const notFound = (res, message) => res.status(404).json({ message });
+
+
 // ===================== PRODUITS =====================
+exports.listerProduits = handle(async (req, res) => {
+  const result = await PharmacieService.listerProduitsActif();
+  return ok(res, result);
+});
 
-// 🔹 GET /produits
-exports.listerProduits = async (req, res) => {
-  try {
-    const produits = await PharmacieService.listerProduitsActif();
-    res.status(200).json(produits);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.getProduit = handle(async (req, res) => {
+  const result = await PharmacieService.getProduitById(req.params.id);
 
-// 🔹 GET /produits/:id
-exports.getProduit = async (req, res) => {
-  try {
-    const produit = await PharmacieService.getProduitById(req.params.id);
-    res.status(200).json(produit);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-};
+  if (!result.produit) return notFound(res, result.message);
 
-// 🔹 GET /produits/recherche?query=xxx
-exports.rechercherProduits = async (req, res) => {
-  try {
-    const { query } = req.query;
+  return ok(res, result);
+});
 
-    if (!query) {
-      return res.status(400).json({ message: "Query manquante" });
-    }
+exports.rechercherProduits = handle(async (req, res) => {
+  const { query } = req.query;
 
-    const result = await PharmacieService.rechercherProduits(query);
-    res.status(200).json(result);
+  if (!query) return notFound(res, "Query manquante");
 
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  const result = await PharmacieService.rechercherProduits(query);
+  return ok(res, result);
+});
 
 // ===================== COMMANDES =====================
 
-// 🔹 POST /commandes
-exports.commander = async (req, res) => {
-  try {
-    const { produits } = req.body;
+exports.commander = handle(async (req, res) => {
+  const { produits } = req.body;
 
-    if (!produits || !produits.length) {
-      return res.status(400).json({ message: "Aucun produit fourni" });
-    }
+  if (!produits?.length)
+    return notFound(res, "Aucun produit fourni");
 
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ message: "Utilisateur non authentifié" });
-    }
+  const result = await PharmacieService.commanderProduits(
+    req.user.id,
+    produits
+  );
 
-    const commande = await PharmacieService.commanderProduits(
-      req.user.id,
-      produits
-    );
+  if (!result.success) return notFound(res, result.message);
 
-    res.status(201).json(commande);
-
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+  return created(res, result);
+});
 
 // ===================== MES COMMANDES =====================
 
-exports.commandesLivrees = async (req, res) => {
-  try {
-    const data = await PharmacieService.mesCommandesLivree(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.commandesLivrees = handle(async (req, res) => {
+  const result = await PharmacieService.mesCommandesLivree(req.user.id);
+  return ok(res, result);
+});
 
-//nombre de commande livree
+exports.nombreCommandeLivree = handle(async (req, res) => {
+  const result = await PharmacieService.nombreCommandeLivree(req.user.id);
+  return ok(res, result);
+});
 
-exports.nombreCommandeLivree = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreCommandeLivree(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// 🔹 GET /mes-commandes/en-attente
-exports.commandesEnAttente = async (req, res) => {
-  try {
-    const data = await PharmacieService.mesCommandesEnAttente(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.commandesEnAttente = handle(async (req, res) => {
+  const result = await PharmacieService.mesCommandesEnAttente(req.user.id);
+  return ok(res, result);
+});
 
 //nombre de commande en attente
 
-exports.nombreCommandeEnAttente = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreCommandeEnAttente(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.nombreCommandeEnAttente = handle(async (req, res) => {
+  const result = await PharmacieService.nombreCommandeEnAttente(req.user.id);
+  return ok(res, result);
+});
 
-// 🔹 GET /mes-commandes/annulees
-exports.commandesAnnulees = async (req, res) => {
-  try {
-    const data = await PharmacieService.mesCommandesAnnulees(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.commandesAnnulees = handle(async (req, res) => {
+  const result = await PharmacieService.mesCommandesAnnulees(req.user.id);
+  return ok(res, result);
+});
 
 //nombre de commande annulee
 
-exports.nombreCommandeAnnulee = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreCommandeAnnulee(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.nombreCommandeAnnulee = handle(async (req, res) => {
+  const result = await PharmacieService.nombreCommandeAnnulee(req.user.id);
+  return ok(res, result);
+});
 
 // 🔹 GET /mes-commandes/validees
-exports.commandesValidees = async (req, res) => {
-  try {
-    const data = await PharmacieService.mesCommandesValidees(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.commandesValidees = handle(async (req, res) => {
+  const result = await PharmacieService.mesCommandesValidees(req.user.id);
+  return ok(res, result);
+});
 
 //nombre de commande valider
 
-exports.nombreCommandeValidees = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreCommandeValidees(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.nombreCommandeValidees = handle(async (req, res) => {
+  const result = await PharmacieService.nombreCommandeValidees(req.user.id);
+  return ok(res, result);
+});
 
-// 🔹 GET /mes-commandes/rejetees
-exports.commandesRejetees = async (req, res) => {
-  try {
-    const data = await PharmacieService.mesCommandesRejetees(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.commandesRejetees = handle(async (req, res) => {
+  const result = await PharmacieService.mesCommandesRejetees(req.user.id);
+  return ok(res, result);
+});
 
 //nombre de commande rejeter
 
-exports.nombreCommandeRejetees = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreCommandeRejetees(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.nombreCommandeRejetees = handle(async (req, res) => {
+  const result = await PharmacieService.nombreCommandeRejetees(req.user.id);
+  return ok(res, result);
+});
 
 // nombre total de commande
 
-exports.nombreTotalDeCommandes = async (req, res) => {
-  try {
-    const data = await PharmacieService.nombreTotalDeCommandes(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.nombreTotalDeCommandes = handle(async (req, res) => {
+  const result = await PharmacieService.nombreTotalDeCommandes(req.user.id);
+  return ok(res, result);
+});
 
 // ===================== DETAIL COMMANDE =====================
 
-// 🔹 GET /commandes/:id
-exports.detailCommande = async (req, res) => {
-  try {
-    const commande = await PharmacieService.detailCommande(req.params.id);
-    res.status(200).json(commande);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-};
+exports.detailCommande = handle(async (req, res) => {
+  const result = await PharmacieService.detailCommande(
+    req.params.id,
+    req.user.id
+  );
+  return ok(res, result);
+});
 
 // ===================== ANNULATION =====================
 
-// 🔹 PATCH /commandes/:id/annuler
-exports.annulerCommande = async (req, res) => {
-  try {
-    const commande = await PharmacieService.annulerCommande(
-      req.params.id,
-      req.user.id
-    );
-    res.status(200).json(commande);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+exports.annulerCommande = handle(async (req, res) => {
+  const { motifAnnulation } = req.body;
+
+  if (!motifAnnulation) return notFound(res, "Motif d'annulation est requis");
+
+  const result = await PharmacieService.annulerCommande(
+    req.params.id,
+    req.user.id,
+    motifAnnulation
+  );
+  return ok(res, result);
+});
 
 //historique des 10 derniers commandes
-exports.historiqueCommandes = async (req, res) => {
-  try {
-    const data = await PharmacieService.historiqueCommandes(req.user.id);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.historiqueCommandes = handle(async (req, res) => {
+  const result = await PharmacieService.historiqueCommandes(req.user.id);
+  return ok(res, result);
+});
