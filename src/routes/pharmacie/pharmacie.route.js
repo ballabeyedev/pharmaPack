@@ -97,5 +97,10 @@ router.get(
     PharmacieController.historiqueCommandes
 );
 
+router.get(
+    '/toutes-les-commandes',
+    PharmacieController.allCommandes
+)
+
 
 module.exports = router;

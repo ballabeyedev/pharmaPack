@@ -718,6 +718,51 @@ class PharmacieService {
       throw error;
     }
   }
+
+  //TOUR LES COMMANDES
+  static async allCommandes(userId) {
+    try {
+      const pharmacie = await Pharmacie.findOne({
+        where: { pharmacienId: userId }
+      });
+
+      if (!pharmacie) {
+        return {
+          success: false,
+          message: "Pharmacie non trouvée"
+        };
+      }
+
+      const commandes = await Commande.findAll({
+        where: { pharmacie_id: pharmacie.id },
+        include: [
+          {
+            model: CommandeDetails,
+            as: 'details',
+            attributes: ['quantite', 'prix_unitaire', 'prix_total'],
+            include: [
+              {
+                model: Produit,
+                as: 'produit',
+                attributes: ['nom']
+              }
+            ]
+          }
+        ],
+        order: [['createdAt', 'DESC']],
+      });
+
+      return {
+        success: true,
+        message: "Historique des commandes",
+        commandes
+      };
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
 module.exports = PharmacieService;

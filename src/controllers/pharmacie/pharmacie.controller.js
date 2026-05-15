@@ -160,3 +160,9 @@ exports.historiqueCommandes = handle(async (req, res) => {
   const result = await PharmacieService.historiqueCommandes(req.user.id);
   return ok(res, result);
 });
+
+//historique des commandes
+exports.allCommandes = handle(async (req, res) => {
+  const result = await PharmacieService.allCommandes(req.user.id);
+  return ok(res, result);
+});
